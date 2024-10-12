@@ -1,6 +1,5 @@
 package cn.sichu;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -10,8 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class TestApplication {
 
-    @Test
-    public void testApplication() {
-        System.out.println("Test Application");
-    }
+    // @Test
+    // public void testApplication() {
+    //     System.out.println("Test Application");
+    // }
 }

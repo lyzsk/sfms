@@ -1,22 +1,52 @@
 import { createApp } from "vue";
-import App from "./App.vue";
+import ArcoVue, { Card, Drawer, Modal } from "@arco-design/web-vue";
+import "@/styles/arco-ui/index.less";
+import "md-editor-v3/lib/style.css";
+// import '@arco-themes/vue-gi-demo/index.less'
+// import '@arco-design/web-vue/dist/arco.css'
 
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
-import zhCn from "element-plus/es/locale/lang/zh-cn";
+// 额外引入 Arco Design Icon图标库
+import ArcoVueIcon from "@arco-design/web-vue/es/icon";
+import App from "./App.vue";
+import router from "./router";
+
+import "@/router/permission";
+
+// 使用动画库
+import "animate.css/animate.min.css";
+
+// 自定义过渡动画
+import "@/styles/css/transition.css";
+
+// 导入全局scss主文件
+import "@/styles/index.scss";
+
+// 支持SVG
 import "virtual:svg-icons-register";
 
-import globalComponent from "./components/index";
-import router from "./router/index";
-import pinia from "./store/index";
-// import "./permission";
+// 自定义指令
+import directives from "./directives";
+import pinia from "@/stores";
+
+import Particles from "@tsparticles/vue3";
+import { loadFull } from "tsparticles";
+
+// 对特定组件进行默认配置
+Card.props.bordered = false;
 
 const app = createApp(App);
+Modal._context = app._context;
+Drawer._context = app._context;
 
-app.use(ElementPlus, {
-    locale: zhCn,
+app.use(Particles, {
+    init: async (engine) => {
+        await loadFull(engine);
+    },
 });
-app.use(globalComponent);
-app.use(pinia);
 app.use(router);
+app.use(pinia);
+app.use(ArcoVue);
+app.use(ArcoVueIcon);
+app.use(directives);
+
 app.mount("#app");

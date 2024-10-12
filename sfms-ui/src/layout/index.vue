@@ -1,5 +1,15 @@
-<template></template>
+<template>
+    <LayoutMix v-if="appStore.layout === 'mix'"></LayoutMix>
+    <LayoutDefault v-else></LayoutDefault>
+</template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import LayoutDefault from "./LayoutDefault.vue";
+import LayoutMix from "./LayoutMix.vue";
+import { useAppStore } from "@/stores";
 
-<style scoped></style>
+defineOptions({ name: "Layout" });
+const appStore = useAppStore();
+</script>
+
+<style scoped lang="scss"></style>

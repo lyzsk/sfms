@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.sichu.system.mapper.MessageUserMapper">
+    <select id="selectUnreadCountByUserIdAndType" resultType="java.lang.Long">
+        SELECT
+        COUNT(t1.message_id)
+        FROM t_sys_message_user AS t1
+        LEFT JOIN t_sys_message AS t2 ON t2.id = t1.message_id
+        WHERE t1.user_id = #{userId} AND t1.is_read = false
+        <if test="type != null">
+            AND t2.type = #{type}
+        </if>
+    </select>
+</mapper>

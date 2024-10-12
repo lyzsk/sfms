@@ -10,8 +10,34 @@
     </parent>
 
     <artifactId>sfms-admin</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <!-- ### 打包配置相关 ### -->
+        <!-- 启动类 -->
+        <main-class>cn.sichu.Application</main-class>
+        <!-- 程序 jar 输出目录 -->
+        <bin-path>bin/</bin-path>
+        <!-- 配置文件输出目录 -->
+        <config-path>config/</config-path>
+        <!-- 依赖 jar 输出目录 -->
+        <lib-path>lib/</lib-path>
+    </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>cn.sichu</groupId>
+            <artifactId>sfms-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.sichu</groupId>
+            <artifactId>sfms-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.sichu</groupId>
+            <artifactId>sfms-system</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -26,22 +52,33 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.sichu</groupId>
-            <artifactId>sfms-common</artifactId>
+            <groupId>org.dromara.x-file-storage</groupId>
+            <artifactId>x-file-storage-spring</artifactId>
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <configuration>
+                    <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.yml</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.txt</include>
+                    <include>**/*.json</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>

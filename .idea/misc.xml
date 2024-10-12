@@ -5,7 +5,16 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/sfms-starter/pom.xml" />
+        <option value="$PROJECT_DIR$/sfms-starter/sfms-system/pom.xml" />
+        <option value="$PROJECT_DIR$/sfms-starter/sfms-admin/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/sfms-base/pom.xml" />
+        <option value="$PROJECT_DIR$/sfms-log/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">

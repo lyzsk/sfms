@@ -1,0 +1,7 @@
+{
+  "cn.sichu.security.limiter.annotation.RateLimiter@key": {
+    "method": {
+      "parameters": true
+    }
+  }
+}
