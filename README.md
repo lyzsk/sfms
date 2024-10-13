@@ -30,7 +30,7 @@ semiconductor fabrication management system, 半导体 FAB 管理系统
 - [] /login backend
 - [] /login router
 
-SITE_TITLE, SITE_DESCRIPTION, SITE_COPYRIGHT, SITE_BEIAN, etc. 存在 sys_option
+SITE_TITLE, SITE_DESCRIPTION, SITE_COPYRIGHT, SITE_BEIAN, etc. 存在 t_sys_option
 中, 并存入 redis, 前端直接通过 api 初始化系统配置
 
 TODO: login index.vue 中的 .login-right 明显在 login-box 中 只占了 12 栅格,
@@ -62,3 +62,5 @@ TODO: `RateIntervalUnit.SECONDS`
 'org.redisson.api.RateIntervalUnit' is deprecated 3.36.0 -> redisson-3.37.0
 
 TODO: `[SFMS]` 全局修改成 `[SFMS]`
+
+`private LocalDate registrationDate;` 改为 `private Date registrationTime`

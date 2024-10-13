@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.Properties;
@@ -19,6 +20,7 @@ import java.util.Properties;
  * @date 2024/10/11
  **/
 @AutoConfiguration
+@Component
 public class ValidatorAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ValidatorAutoConfiguration.class);

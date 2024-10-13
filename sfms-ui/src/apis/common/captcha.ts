@@ -21,11 +21,11 @@ export function getEmailCaptcha(query: { email: string }) {
 }
 
 /** @desc 获取行为验证码 */
-export function getBehaviorCaptcha(req: any) {
-    return http.get<T.BehaviorCaptchaResp>(`${BASE_URL}/behavior`, req);
-}
+// export function getBehaviorCaptcha(req: any) {
+//     return http.get<T.BehaviorCaptchaResp>(`${BASE_URL}/behavior`, req);
+// }
 
 /** @desc 校验行为验证码 */
-export function checkBehaviorCaptcha(req: any) {
-    return http.post<T.CheckBehaviorCaptchaResp>(`${BASE_URL}/behavior`, req);
-}
+// export function checkBehaviorCaptcha(req: any) {
+//     return http.post<T.CheckBehaviorCaptchaResp>(`${BASE_URL}/behavior`, req);
+// }

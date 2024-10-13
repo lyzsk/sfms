@@ -2,6 +2,7 @@ package cn.sichu.log.dao;
 
 import cn.sichu.log.model.LogRecord;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * @author sichu huang
  * @date 2024/10/11
  **/
-public interface LogDao {
+public interface LogDAO {
 
     /**
      * 查询日志列表
@@ -27,5 +28,5 @@ public interface LogDao {
      *
      * @param logRecord 日志信息
      */
-    void add(LogRecord logRecord);
+    void add(LogRecord logRecord) throws ParseException;
 }

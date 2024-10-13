@@ -1,6 +1,6 @@
 package cn.sichu.log.dao.impl;
 
-import cn.sichu.log.dao.LogDao;
+import cn.sichu.log.dao.LogDAO;
 import cn.sichu.log.model.LogRecord;
 
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import java.util.List;
  * @author sichu huang
  * @date 2024/10/11
  **/
-public class LogDaoDefaultImpl implements LogDao {
+public class LogDAODefaultImpl implements LogDAO {
 
     /**
      * 日志列表

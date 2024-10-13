@@ -112,7 +112,6 @@ const toggleLoginMode = () => {
 @media screen and (max-width: 570px) {
     .pc {
         display: none !important;
-        // background-color: white !important;
     }
 
     .login {
@@ -210,8 +209,6 @@ const toggleLoginMode = () => {
             left: 0;
             padding-bottom: 20px;
 
-            // margin-top: auto;
-            // margin-bottom: 20px;
             :deep(.arco-divider-text) {
                 color: var(--color-text-4);
                 font-size: 12px;

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.concurrent.Executor;
@@ -28,6 +29,7 @@ import java.util.concurrent.Executor;
 @EnableAsync(proxyTargetClass = true)
 @ConditionalOnProperty(prefix = "spring.task.execution.extension",
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class AsyncAutoConfiguration implements AsyncConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(AsyncAutoConfiguration.class);

@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
 /**
  * 项目自动配置
@@ -15,5 +16,6 @@ import org.springframework.context.annotation.Import;
 @ComponentScan("cn.hutool.extra.spring")
 @Import(cn.hutool.extra.spring.SpringUtil.class)
 @EnableConfigurationProperties(ProjectProperties.class)
+@Component
 public class ProjectAutoConfiguration {
 }

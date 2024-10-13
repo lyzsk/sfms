@@ -1,17 +1,25 @@
 package cn.sichu;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.sichu.core.autoconfigure.project.ProjectProperties;
 import cn.sichu.crud.core.annotation.EnableCrudRestController;
 import cn.sichu.web.annotation.EnableGlobalResponse;
+import cn.sichu.web.model.R;
 import com.alicp.jetcache.anno.config.EnableMethodCache;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.x.file.storage.spring.EnableFileStorage;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,11 +35,22 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RequiredArgsConstructor
 @ComponentScan(basePackages = "cn.sichu")
-public class Application implements ApplicationRunner {
+@AutoConfigurationPackage(basePackages = "cn.sichu")
+public class Application implements ApplicationRunner, ApplicationContextAware {
+    private static ApplicationContext context;
     private final ProjectProperties projectProperties;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+        System.err.println(context.getAutowireCapableBeanFactory());
+    }
+
+    @Hidden
+    @SaIgnore
+    @GetMapping("/")
+    public R index() {
+        return R.ok("%s service started successfully.".formatted(projectProperties.getName()),
+            null);
     }
 
     @Override
@@ -50,4 +69,8 @@ public class Application implements ApplicationRunner {
             " =========================== Start Successfully! ===========================\n");
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 
 /**
  * 限流器自动配置
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"top.continew.starter.security.limiter.core"})
 @ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_LIMITER,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class RateLimiterAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 /**
  * 邮件自动配置
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.PropertySource;
 @AutoConfiguration
 @PropertySource(value = "classpath:default-messaging-mail.yml",
     factory = GeneralPropertySourceFactory.class)
+@Component
 public class MailAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(MailAutoConfiguration.class);

@@ -35,13 +35,13 @@
                 </a-button>
             </template>
         </GiForm>
-        <Verify
+        <!-- <Verify
             ref="VerifyRef"
             :captcha-type="captchaType"
             :mode="captchaMode"
             :img-size="{ width: '330px', height: '155px' }"
             @success="getCaptcha"
-        />
+        /> -->
     </a-modal>
 </template>
 

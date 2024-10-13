@@ -1,60 +1,62 @@
 --- ### 项目配置
 project:
   # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
-  url: http://localhost:5173
+  #  url: http://localhost:5173
+  url: http://localhost:8889
 
 --- ### 服务器配置
 server:
   # HTTP 端口（默认 8080）
+  #  port: 8000
   port: 8888
 
 --- ### 数据源配置
 spring.datasource:
-#  type: com.zaxxer.hikari.HikariDataSource
-#  ## 动态数据源配置（可配多主多从：m1、s1...；纯粹多库：mysql、oracle...；混合配置：m1、s1、oracle...）
-#  dynamic:
-#    # 是否启用 P6Spy（SQL 性能分析组件，该插件有性能损耗，不建议生产环境使用）
-#    p6spy: true
-#    # 设置默认的数据源或者数据源组（默认：master）
-#    primary: master
-#    # 严格匹配数据源（true：未匹配到指定数据源时抛异常；false：使用默认数据源；默认 false）
-#    strict: false
-#    datasource:
-#      # 主库配置（可配多个，构成多主）
-#      master:
-#        url: jdbc:mysql://localhost:3306/sfms?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
-#        username: root
-#        password: root
-#        driver-class-name: com.mysql.cj.jdbc.Driver
-#        type: ${spring.datasource.type}
-#      # 从库配置（可配多个，构成多从）
-#      slave_1:
-#        url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
-#        username:
-#        password:
-#        lazy: true
-#        driver-class-name: com.mysql.cj.jdbc.Driver
-#        type: ${spring.datasource.type}
-#      # PostgreSQL 库配置
-#      postgresql:
-#        url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5432}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
-#        username: ${DB_USER:root}
-#        password: ${DB_PWD:123456}
-#        driver-class-name: org.postgresql.Driver
-#        type: ${spring.datasource.type}
-# Hikari 连接池配置（完整配置请参阅：https://github.com/brettwooldridge/HikariCP）
-#  hikari:
-#    # 最大连接数量（默认 10，根据实际环境调整）
-#    # 注意：当连接达到上限，并且没有空闲连接可用时，获取连接将在超时前阻塞最多 connectionTimeout 毫秒
-#    max-pool-size: 20
-#    # 获取连接超时时间（默认 30000 毫秒，30 秒）
-#    connection-timeout: 30000
-#    # 空闲连接最大存活时间（默认 600000 毫秒，10 分钟）
-#    idle-timeout: 600000
-#    # 保持连接活动的频率，以防止它被数据库或网络基础设施超时。该值必须小于 maxLifetime（默认 0，禁用）
-#    keepaliveTime: 30000
-#    # 连接最大生存时间（默认 1800000 毫秒，30 分钟）
-#    max-lifetime: 1800000
+  type: com.zaxxer.hikari.HikariDataSource
+  ## 动态数据源配置（可配多主多从：m1、s1...；纯粹多库：mysql、oracle...；混合配置：m1、s1、oracle...）
+  dynamic:
+    # 是否启用 P6Spy（SQL 性能分析组件，该插件有性能损耗，不建议生产环境使用）
+    p6spy: true
+    # 设置默认的数据源或者数据源组（默认：master）
+    primary: master
+    # 严格匹配数据源（true：未匹配到指定数据源时抛异常；false：使用默认数据源；默认 false）
+    strict: false
+    datasource:
+      # 主库配置（可配多个，构成多主）
+      master:
+        url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
+        username: ${DB_USER:root}
+        password: ${DB_PWD:root}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: ${spring.datasource.type}
+    #      # 从库配置（可配多个，构成多从）
+    #      slave_1:
+    #        url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
+    #        username:
+    #        password:
+    #        lazy: true
+    #        driver-class-name: com.mysql.cj.jdbc.Driver
+    #        type: ${spring.datasource.type}
+    #      # PostgreSQL 库配置
+    #      postgresql:
+    #        url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5432}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
+    #        username: ${DB_USER:root}
+    #        password: ${DB_PWD:123456}
+    #        driver-class-name: org.postgresql.Driver
+    #        type: ${spring.datasource.type}
+    # Hikari 连接池配置（完整配置请参阅：https://github.com/brettwooldridge/HikariCP）
+    hikari:
+      # 最大连接数量（默认 10，根据实际环境调整）
+      # 注意：当连接达到上限，并且没有空闲连接可用时，获取连接将在超时前阻塞最多 connectionTimeout 毫秒
+      max-pool-size: 20
+      # 获取连接超时时间（默认 30000 毫秒，30 秒）
+      connection-timeout: 30000
+      # 空闲连接最大存活时间（默认 600000 毫秒，10 分钟）
+      idle-timeout: 600000
+      # 保持连接活动的频率，以防止它被数据库或网络基础设施超时。该值必须小于 maxLifetime（默认 0，禁用）
+      keepaliveTime: 30000
+      # 连接最大生存时间（默认 1800000 毫秒，30 分钟）
+      max-lifetime: 1800000
 ## Liquibase 配置
 spring.liquibase:
   # 是否启用
@@ -67,11 +69,11 @@ spring.data:
   ## Redis 配置（单机模式）
   redis:
     # 地址
-    host: 127.0.0.1
+    host: ${REDIS_HOST:127.0.0.1}
     # 端口（默认 6379）
-    port: 6379
+    port: ${REDIS_PORT:6379}
     # 密码（未设置密码时请注释掉）
-    #    password:
+    #    password: ${REDIS_PWD:123456}
     # 数据库索引
     database: ${REDIS_DB:0}
     # 连接超时时间
@@ -114,27 +116,6 @@ jetcache:
       valueEncoder: java
       valueDecoder: java
 
---- ### 验证码配置
-sfms.captcha:
-## 行为验证码
-#  behavior:
-#    enabled: true
-#    cache-type: REDIS
-#    water-mark:
-#    # 一分钟内接口请求次数限制开关（默认：0，关闭，开启后下方失败锁定配置才会生效）
-#    req-frequency-limit-enable: 0
-#    # 一分钟内验证码最多失败次数限制（默认：5次）
-#    req-get-lock-limit: 5
-#    # 一分钟内验证码最多失败次数限制达标后锁定时间（默认：300秒）
-#    req-get-lock-seconds: 300
-#  ## 图形验证码
-#  graphic:
-#    # 类型
-#    type: SPEC
-#    # 内容长度
-#    length: 4
-#    # 过期时间
-#    expirationInMinutes: 2
 ## 其他验证码配置
 captcha:
   ## 邮箱验证码配置
@@ -220,21 +201,6 @@ spring.mail:
           class: javax.net.ssl.SSLSocketFactory
           port: 465
 
---- ### Just Auth 配置
-justauth:
-  enabled: true
-  type:
-    GITEE:
-      client-id: 5d271b7f638941812aaf8bfc2e2f08f06d6235ef934e0e39537e2364eb8452c4
-      client-secret: 1f7d08**********5b7**********29e
-      redirect-uri: ${project.url}/social/callback?source=gitee
-    GITHUB:
-      client-id: 38080dad08cfbdfacca9
-      client-secret: 1f7d08**********5b7**********29e
-      redirect-uri: ${project.url}/social/callback?source=github
-  cache:
-    type: REDIS
-
 --- ### Sa-Token 扩展配置
 sa-token.extension:
   # 安全配置：排除（放行）路径配置
@@ -287,54 +253,3 @@ spring.servlet:
 ## 头像支持格式配置
 avatar:
   support-suffix: jpg,jpeg,png,gif
-
---- ### Snail Job 配置
-snail-job:
-  enabled: false
-  # 客户端地址（默认自动获取本机 IP）
-  #host: 127.0.0.1
-  # 客户端端口（默认：1789）
-  port: 1789
-  # 命名空间 ID
-  namespace: 764d604ec6fc45f68cd92514c40e9e1a
-  # 分组名
-  group: continew-admin
-  # 令牌
-  token: SJ_Wyz3dmsdbDOkDujOTSSoBjGQP1BMsVnj
-  ## 服务端配置（任务调度中心）
-  server:
-    # 服务端地址，若服务端集群部署则此处配置域名
-    host: 127.0.0.1
-    # Netty 端口号
-    port: 1788
-    # API 配置
-    api:
-      # URL
-      url: http://127.0.0.1:8001/snail-job
-      # 用户名
-      username: admin
-      # 密码
-      password: admin
-  ## 重试数据批量上报滑动窗口配置
-  retry:
-    reportSlidingWindow:
-      # 窗口期单位
-      chrono-unit: SECONDS
-      # 窗口期时间长度
-      duration: 10
-      # 总量窗口期阈值
-      total-threshold: 50
-      # 窗口数量预警
-      window-total-threshold: 150
-  ## 调度线程池配置
-  dispatcherThreadPool:
-    # 核心线程数
-    corePoolSize: 16
-    # 最大线程数
-    maximumPoolSize: 16
-    # 线程存活时间
-    keepAliveTime: 1
-    # 时间单位
-    timeUnit: SECONDS
-    # 队列容量
-    queueCapacity: 10000

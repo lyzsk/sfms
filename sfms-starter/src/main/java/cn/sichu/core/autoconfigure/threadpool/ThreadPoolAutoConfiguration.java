@@ -12,6 +12,7 @@ import org.springframework.boot.task.ThreadPoolTaskSchedulerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
 
 /**
  * 线程池自动配置
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Lazy
 @AutoConfiguration
 @EnableConfigurationProperties(ThreadPoolExtensionProperties.class)
+@Component
 public class ThreadPoolAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ThreadPoolAutoConfiguration.class);

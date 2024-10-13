@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -36,6 +37,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
     havingValue = "true")
 @PropertySource(value = "classpath:default-auth-satoken.yml",
     factory = GeneralPropertySourceFactory.class)
+@Component
 public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(SaTokenAutoConfiguration.class);

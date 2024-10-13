@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -27,6 +28,7 @@ import org.springframework.web.filter.CorsFilter;
 @ConditionalOnProperty(prefix = PropertiesConstants.WEB_CORS, name = PropertiesConstants.ENABLED,
     havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
+@Component
 public class CorsAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 

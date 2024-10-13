@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.Map;
 @EnableConfigurationProperties(PasswordEncoderProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_PASSWORD,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class PasswordEncoderAutoConfiguration {
 
     private static final Logger log =

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Map;
@@ -41,6 +42,7 @@ import java.util.Map;
     havingValue = "true")
 @PropertySource(value = "classpath:default-data-mybatis-plus.yml",
     factory = GeneralPropertySourceFactory.class)
+@Component
 public class MybatisPlusAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(MybatisPlusAutoConfiguration.class);

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -26,6 +27,7 @@ import java.util.Map;
 @EnableConfigurationProperties(LocalStorageProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(LocalStorageAutoConfiguration.class);

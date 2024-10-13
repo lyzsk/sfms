@@ -19,17 +19,17 @@ public class TraceProperties {
 
     /**
      * 是否启用链路跟踪配置
-     */
+     **/
     private boolean enabled = false;
 
     /**
      * 链路 ID 名称
-     */
+     **/
     private String traceIdName = "traceId";
 
     /**
      * TLog 配置
-     */
+     **/
     @NestedConfigurationProperty
     private TLogProperties tlog;
 

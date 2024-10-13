@@ -3,7 +3,7 @@ package cn.sichu.log.handler;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.sichu.log.annotation.Log;
 import cn.sichu.log.autoconfigure.LogProperties;
-import cn.sichu.log.dao.LogDao;
+import cn.sichu.log.dao.LogDAO;
 import cn.sichu.log.enums.Include;
 import cn.sichu.log.model.LogRecord;
 import com.alibaba.ttl.TransmittableThreadLocal;
@@ -32,13 +32,13 @@ import java.util.Set;
 public class LogInterceptor implements HandlerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
-    private final LogDao logDao;
+    private final LogDAO logDao;
     private final LogProperties logProperties;
     private final TransmittableThreadLocal<Instant> timeTtl = new TransmittableThreadLocal<>();
     private final TransmittableThreadLocal<LogRecord.Started> logTtl =
         new TransmittableThreadLocal<>();
 
-    public LogInterceptor(LogDao logDao, LogProperties logProperties) {
+    public LogInterceptor(LogDAO logDao, LogProperties logProperties) {
         this.logDao = logDao;
         this.logProperties = logProperties;
     }

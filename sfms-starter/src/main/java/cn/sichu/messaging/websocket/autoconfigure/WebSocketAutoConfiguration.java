@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -30,6 +31,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 @EnableConfigurationProperties(WebSocketProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class WebSocketAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);

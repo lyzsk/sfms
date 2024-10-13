@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED,
     havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(RedissonProperties.class)
+@Component
 public class RedissonAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RedissonAutoConfiguration.class);

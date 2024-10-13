@@ -1,7 +1,7 @@
 package cn.sichu.log.autoconfigure;
 
-import cn.sichu.log.dao.LogDao;
-import cn.sichu.log.dao.impl.LogDaoDefaultImpl;
+import cn.sichu.log.dao.LogDAO;
+import cn.sichu.log.dao.impl.LogDAODefaultImpl;
 import cn.sichu.log.handler.LogFilter;
 import cn.sichu.log.handler.LogInterceptor;
 import jakarta.annotation.PostConstruct;
@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ConditionalOnEnabledLog
 @EnableConfigurationProperties(LogProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@Component
 public class LogAutoConfiguration implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
@@ -53,8 +55,8 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
      */
     @Bean
     @ConditionalOnMissingBean
-    public LogDao logDao() {
-        return new LogDaoDefaultImpl();
+    public LogDAO logDao() {
+        return new LogDAODefaultImpl();
     }
 
     @PostConstruct

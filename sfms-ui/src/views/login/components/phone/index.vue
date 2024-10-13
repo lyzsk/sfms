@@ -49,13 +49,13 @@
             </a-space>
         </a-form-item>
     </a-form>
-    <Verify
+    <!-- <Verify
         ref="VerifyRef"
         :captcha-type="captchaType"
         :mode="captchaMode"
         :img-size="{ width: '330px', height: '155px' }"
         @success="getCaptcha"
-    />
+    /> -->
 </template>
 
 <script setup lang="ts">

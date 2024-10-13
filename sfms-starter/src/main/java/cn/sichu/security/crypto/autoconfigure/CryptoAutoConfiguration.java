@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * 加/解密自动配置
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(CryptoProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_CRYPTO,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@Component
 public class CryptoAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoAutoConfiguration.class);

@@ -16,6 +16,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
+import org.springframework.stereotype.Component;
 
 /**
  * 链路跟踪自动配置
@@ -28,6 +29,7 @@ import org.springframework.core.Ordered;
 @EnableConfigurationProperties(TraceProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.WEB_TRACE, name = PropertiesConstants.ENABLED,
     havingValue = "true")
+@Component
 public class TraceAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TraceAutoConfiguration.class);

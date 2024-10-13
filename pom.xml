@@ -48,6 +48,7 @@
         <tlog.version>1.5.2</tlog.version>
         <graceful-response.version>5.0.0-boot3</graceful-response.version>
         <knife4j.version>4.5.0</knife4j.version>
+        <sms4j.verion>3.3.3</sms4j.verion>
     </properties>
 
 
@@ -61,6 +62,16 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure-processor</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
             <dependency>
@@ -291,6 +302,18 @@
                 <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.dromara.sms4j</groupId>
+                <artifactId>sms4j-api</artifactId>
+                <version>${sms4j.verion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dromara.sms4j</groupId>
+                <artifactId>sms4j-spring-boot-starter</artifactId>
+                <version>${sms4j.verion}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>cn.sichu</groupId>
                 <artifactId>sfms</artifactId>

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * XSS 过滤自动配置
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(XssProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.WEB_XSS, name = PropertiesConstants.ENABLED,
     havingValue = "true")
+@Component
 public class XssAutoConfiguration {
 
     /**
