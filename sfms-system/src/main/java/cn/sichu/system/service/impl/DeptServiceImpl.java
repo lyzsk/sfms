@@ -1,203 +1,209 @@
 package cn.sichu.system.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.extra.spring.SpringUtil;
-import cn.sichu.core.utils.validate.CheckUtils;
-import cn.sichu.crud.mp.service.impl.BaseServiceImpl;
-import cn.sichu.data.core.enums.DatabaseType;
-import cn.sichu.data.core.utils.MetaUtils;
-import cn.sichu.enums.DisEnableStatusEnum;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
+import cn.sichu.constant.SymbolConstant;
+import cn.sichu.constant.SystemConstants;
+import cn.sichu.enums.StatusEnum;
+import cn.sichu.model.Option;
+import cn.sichu.system.converter.DeptConverter;
+import cn.sichu.system.core.utils.SecurityUtils;
 import cn.sichu.system.mapper.DeptMapper;
-import cn.sichu.system.model.entity.DeptDO;
+import cn.sichu.system.model.entity.Dept;
+import cn.sichu.system.model.form.DeptForm;
 import cn.sichu.system.model.query.DeptQuery;
-import cn.sichu.system.model.req.DeptReq;
-import cn.sichu.system.model.resp.DeptResp;
-import cn.sichu.system.service.IDeptService;
-import cn.sichu.system.service.IRoleDeptService;
-import cn.sichu.system.service.IUserService;
-import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import jakarta.annotation.Resource;
+import cn.sichu.system.model.vo.DeptVO;
+import cn.sichu.system.service.DeptService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author sichu huang
- * @date 2024/10/10
- **/
+ * @since 2024/10/16 23:48
+ */
 @Service
 @RequiredArgsConstructor
-public class DeptServiceImpl
-    extends BaseServiceImpl<DeptMapper, DeptDO, DeptResp, DeptResp, DeptQuery, DeptReq>
-    implements IDeptService {
-    private final IRoleDeptService roleDeptService;
-    @Resource
-    private IUserService userService;
+public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements DeptService {
 
-    @Override
-    public List<DeptDO> listChildren(Long id) {
-        DatabaseType databaseType =
-            MetaUtils.getDatabaseTypeOrDefault(SpringUtil.getBean(DynamicRoutingDataSource.class),
-                DatabaseType.MYSQL);
-        return baseMapper.lambdaQuery().apply(databaseType.findInSet(id, "ancestors")).list();
+    private final DeptConverter deptConverter;
+
+    /**
+     * 递归生成部门表格层级列表
+     *
+     * @param parentId 父ID
+     * @param deptList 部门列表
+     * @return java.util.List<cn.sichu.model.Option < java.lang.Long>> 部门表格层级列表
+     * @author sichu huang
+     * @since 2024/10/16 23:49:33
+     */
+    private static List<Option<Long>> recurDeptTreeOptions(long parentId, List<Dept> deptList) {
+        return CollectionUtil.emptyIfNull(deptList).stream()
+            .filter(dept -> dept.getParentId().equals(parentId)).map(dept -> {
+                Option<Long> option = new Option<>(dept.getId(), dept.getName());
+                List<Option<Long>> children = recurDeptTreeOptions(dept.getId(), deptList);
+                if (CollectionUtil.isNotEmpty(children)) {
+                    option.setChildren(children);
+                }
+                return option;
+            }).collect(Collectors.toList());
     }
 
     @Override
-    public List<DeptDO> listByNames(List<String> list) {
-        if (CollUtil.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-        return this.list(Wrappers.<DeptDO>lambdaQuery().in(DeptDO::getName, list));
-    }
+    public List<DeptVO> getDeptList(DeptQuery queryParams) {
+        // 查询参数
+        String keywords = queryParams.getKeywords();
+        Integer status = queryParams.getStatus();
 
-    @Override
-    public int countByNames(List<String> deptNames) {
-        if (CollUtil.isEmpty(deptNames)) {
-            return 0;
-        }
-        return (int)this.count(Wrappers.<DeptDO>lambdaQuery().in(DeptDO::getName, deptNames));
-    }
+        // 查询数据
+        List<Dept> deptList = this.list(
+            new LambdaQueryWrapper<Dept>().like(StrUtil.isNotBlank(keywords), Dept::getName,
+                keywords).eq(status != null, Dept::getStatus, status).orderByAsc(Dept::getSort));
 
-    @Override
-    protected void beforeAdd(DeptReq req) {
-        String name = req.getName();
-        boolean isExists = this.isNameExists(name, req.getParentId(), null);
-        CheckUtils.throwIf(isExists, "新增失败，[{}] 已存在", name);
-        req.setAncestors(this.getAncestors(req.getParentId()));
-    }
+        if (CollectionUtil.isEmpty(deptList)) {
+            return Collections.EMPTY_LIST;
+        }
 
-    @Override
-    protected void beforeUpdate(DeptReq req, Long id) {
-        String name = req.getName();
-        boolean isExists = this.isNameExists(name, req.getParentId(), id);
-        CheckUtils.throwIf(isExists, "修改失败，[{}] 已存在", name);
-        DeptDO oldDept = super.getById(id);
-        String oldName = oldDept.getName();
-        DisEnableStatusEnum newStatus = req.getStatus();
-        Long oldParentId = oldDept.getParentId();
-        if (Boolean.TRUE.equals(oldDept.getIsSystem())) {
-            CheckUtils.throwIfEqual(DisEnableStatusEnum.DISABLE, newStatus,
-                "[{}] 是系统内置部门，不允许禁用", oldName);
-            CheckUtils.throwIfNotEqual(req.getParentId(), oldParentId,
-                "[{}] 是系统内置部门，不允许变更上级部门", oldName);
-        }
-        // 启用/禁用部门
-        if (ObjectUtil.notEqual(newStatus, oldDept.getStatus())) {
-            List<DeptDO> children = this.listChildren(id);
-            long enabledChildrenCount =
-                children.stream().filter(d -> DisEnableStatusEnum.ENABLE.equals(d.getStatus()))
-                    .count();
-            CheckUtils.throwIf(
-                DisEnableStatusEnum.DISABLE.equals(newStatus) && enabledChildrenCount > 0,
-                "禁用 [{}] 前，请先禁用其所有下级部门", oldName);
-            DeptDO oldParentDept = this.getByParentId(oldParentId);
-            CheckUtils.throwIf(
-                DisEnableStatusEnum.ENABLE.equals(newStatus) && DisEnableStatusEnum.DISABLE.equals(
-                    oldParentDept.getStatus()), "启用 [{}] 前，请先启用其所有上级部门", oldName);
-        }
-        // 变更上级部门
-        if (ObjectUtil.notEqual(req.getParentId(), oldParentId)) {
-            // 更新祖级列表
-            String newAncestors = this.getAncestors(req.getParentId());
-            req.setAncestors(newAncestors);
-            // 更新子级的祖级列表
-            this.updateChildrenAncestors(newAncestors, oldDept.getAncestors(), id);
-        }
-    }
+        // 获取所有部门ID
+        Set<Long> deptIds = deptList.stream().map(Dept::getId).collect(Collectors.toSet());
+        // 获取父节点ID
+        Set<Long> parentIds = deptList.stream().map(Dept::getParentId).collect(Collectors.toSet());
+        // 获取根节点ID（递归的起点），即父节点ID中不包含在部门ID中的节点，注意这里不能拿顶级部门 O 作为根节点，因为部门筛选的时候 O 会被过滤掉
+        List<Long> rootIds = CollectionUtil.subtractToList(parentIds, deptIds);
 
-    @Override
-    protected void beforeDelete(List<Long> ids) {
-        List<DeptDO> list = baseMapper.lambdaQuery().select(DeptDO::getName, DeptDO::getIsSystem)
-            .in(DeptDO::getId, ids).list();
-        Optional<DeptDO> isSystemData = list.stream().filter(DeptDO::getIsSystem).findFirst();
-        CheckUtils.throwIf(isSystemData::isPresent, "所选部门 [{}] 是系统内置部门，不允许删除",
-            isSystemData.orElseGet(DeptDO::new).getName());
-        CheckUtils.throwIf(this.countChildren(ids) > 0, "所选部门存在下级部门，不允许删除");
-        CheckUtils.throwIf(userService.countByDeptIds(ids) > 0,
-            "所选部门存在用户关联，请解除关联后重试");
-        // 删除角色和部门关联
-        roleDeptService.deleteByDeptIds(ids);
+        // 递归生成部门树形列表
+        return rootIds.stream().flatMap(rootId -> recurDeptList(rootId, deptList).stream())
+            .toList();
     }
 
     /**
-     * 名称是否存在
+     * 递归生成部门树形列表
      *
-     * @param name     名称
-     * @param parentId 上级 ID
-     * @param id       ID
-     * @return 是否存在
+     * @param parentId 父ID
+     * @param deptList 部门列表
+     * @return java.util.List<cn.sichu.model.vo.DeptVO> 部门树形列表
+     * @author sichu huang
+     * @since 2024/10/16 23:50:03
      */
-    private boolean isNameExists(String name, Long parentId, Long id) {
-        return baseMapper.lambdaQuery().eq(DeptDO::getName, name).eq(DeptDO::getParentId, parentId)
-            .ne(null != id, DeptDO::getId, id).exists();
+    public List<DeptVO> recurDeptList(Long parentId, List<Dept> deptList) {
+        return deptList.stream().filter(dept -> dept.getParentId().equals(parentId)).map(dept -> {
+            DeptVO deptVO = deptConverter.toVo(dept);
+            List<DeptVO> children = recurDeptList(dept.getId(), deptList);
+            deptVO.setChildren(children);
+            return deptVO;
+        }).toList();
     }
 
-    /**
-     * 获取祖级列表
-     *
-     * @param parentId 上级部门
-     * @return 祖级列表
-     */
-    private String getAncestors(Long parentId) {
-        DeptDO parentDept = this.getByParentId(parentId);
-        return "%s,%s".formatted(parentDept.getAncestors(), parentId);
-    }
+    @Override
+    public List<Option<Long>> listDeptOptions() {
 
-    /**
-     * 根据上级部门 ID 查询
-     *
-     * @param parentId 上级部门 ID
-     * @return 上级部门信息
-     */
-    private DeptDO getByParentId(Long parentId) {
-        DeptDO parentDept = baseMapper.selectById(parentId);
-        CheckUtils.throwIfNull(parentDept, "上级部门不存在");
-        return parentDept;
-    }
-
-    /**
-     * 查询子部门数量
-     *
-     * @param ids ID 列表
-     * @return 子部门数量
-     */
-    private Long countChildren(List<Long> ids) {
-        if (CollUtil.isEmpty(ids)) {
-            return 0L;
+        List<Dept> deptList = this.list(
+            new LambdaQueryWrapper<Dept>().eq(Dept::getStatus, StatusEnum.ENABLE.getValue())
+                .select(Dept::getId, Dept::getParentId, Dept::getName).orderByAsc(Dept::getSort));
+        if (CollectionUtil.isEmpty(deptList)) {
+            return Collections.EMPTY_LIST;
         }
-        DatabaseType databaseType =
-            MetaUtils.getDatabaseTypeOrDefault(SpringUtil.getBean(DynamicRoutingDataSource.class),
-                DatabaseType.MYSQL);
-        return ids.stream().mapToLong(
-                id -> baseMapper.lambdaQuery().apply(databaseType.findInSet(id, "ancestors")).count())
-            .sum();
+
+        Set<Long> deptIds = deptList.stream().map(Dept::getId).collect(Collectors.toSet());
+
+        Set<Long> parentIds = deptList.stream().map(Dept::getParentId).collect(Collectors.toSet());
+
+        List<Long> rootIds = CollectionUtil.subtractToList(parentIds, deptIds);
+
+        // 递归生成部门树形列表
+        return rootIds.stream().flatMap(rootId -> recurDeptTreeOptions(rootId, deptList).stream())
+            .toList();
+    }
+
+    @Override
+    public Long saveDept(DeptForm formData) {
+        // 校验部门名称是否存在
+        String code = formData.getCode();
+        long count = this.count(new LambdaQueryWrapper<Dept>().eq(Dept::getCode, code));
+        Assert.isTrue(count == 0, "部门编号已存在");
+
+        // form->entity
+        Dept entity = deptConverter.toEntity(formData);
+
+        // 生成部门路径(tree_path)，格式：父节点tree_path + , + 父节点ID，用于删除部门时级联删除子部门
+        String treePath = generateDeptTreePath(formData.getParentId());
+        entity.setTreePath(treePath);
+
+        entity.setCreateBy(SecurityUtils.getUserId());
+        // 保存部门并返回部门ID
+        boolean result = this.save(entity);
+        Assert.isTrue(result, "部门保存失败");
+
+        return entity.getId();
+    }
+
+    @Override
+    public DeptForm getDeptForm(Long deptId) {
+        Dept entity = this.getById(deptId);
+        return deptConverter.toForm(entity);
+    }
+
+    @Override
+    public Long updateDept(Long deptId, DeptForm formData) {
+        // 校验部门名称/部门编号是否存在
+        String code = formData.getCode();
+        long count = this.count(
+            new LambdaQueryWrapper<Dept>().ne(Dept::getId, deptId).eq(Dept::getCode, code));
+        Assert.isTrue(count == 0, "部门编号已存在");
+
+        // form->entity
+        Dept entity = deptConverter.toEntity(formData);
+        entity.setId(deptId);
+
+        // 生成部门路径(tree_path)，格式：父节点tree_path + , + 父节点ID，用于删除部门时级联删除子部门
+        String treePath = generateDeptTreePath(formData.getParentId());
+        entity.setTreePath(treePath);
+
+        // 保存部门并返回部门ID
+        boolean result = this.updateById(entity);
+        Assert.isTrue(result, "部门更新失败");
+
+        return entity.getId();
+    }
+
+    @Override
+    public boolean deleteByIds(String ids) {
+        // 删除部门及子部门
+        if (StrUtil.isNotBlank(ids)) {
+            String[] menuIds = ids.split(SymbolConstant.COMMA);
+            for (String deptId : menuIds) {
+                this.update(new LambdaUpdateWrapper<Dept>().eq(Dept::getId, deptId).or()
+                    .apply("CONCAT (',',tree_path,',') LIKE CONCAT('%,',{0},',%')", deptId)
+                    .set(Dept::getIsDeleted, 1).set(Dept::getUpdateBy, SecurityUtils.getUserId()));
+            }
+        }
+        return true;
     }
 
     /**
-     * 更新子部门祖级列表
+     * 部门路径生成
      *
-     * @param newAncestors 新祖级列表
-     * @param oldAncestors 原祖级列表
-     * @param id           ID
+     * @param parentId 父ID
+     * @return 父节点路径以英文逗号(, )分割，eg: 1,2,3
      */
-    private void updateChildrenAncestors(String newAncestors, String oldAncestors, Long id) {
-        List<DeptDO> children = this.listChildren(id);
-        if (CollUtil.isEmpty(children)) {
-            return;
+    private String generateDeptTreePath(Long parentId) {
+        String treePath = null;
+        if (SystemConstants.ROOT_NODE_ID.equals(parentId)) {
+            treePath = String.valueOf(parentId);
+        } else {
+            Dept parent = this.getById(parentId);
+            if (parent != null) {
+                treePath = parent.getTreePath() + SymbolConstant.COMMA + parent.getId();
+            }
         }
-        List<DeptDO> list = new ArrayList<>(children.size());
-        for (DeptDO child : children) {
-            DeptDO dept = new DeptDO();
-            dept.setId(child.getId());
-            dept.setAncestors(child.getAncestors().replaceFirst(oldAncestors, newAncestors));
-            list.add(dept);
-        }
-        baseMapper.updateBatchById(list);
+        return treePath;
     }
 }

@@ -1,0 +1,35 @@
+package cn.sichu.system.model.query;
+
+import cn.sichu.base.BasePageQuery;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
+/**
+ * 通知公告分页查询对象
+ *
+ * @author sichu huang
+ * @since 2024/10/16 22:59
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "通知公告查询对象")
+public class NoticePageQuery extends BasePageQuery {
+
+    @Schema(description = "通知标题")
+    private String title;
+
+    @Schema(description = "发布状态(0-未发布 1已发布 -1已撤回)")
+    private Integer publishStatus;
+
+    @Schema(description = "发布时间(起止)")
+    private List<String> publishTime;
+
+    @Schema(description = "查询人ID")
+    private Long userId;
+
+    @Schema(description = "是否已读（0-未读 1-已读）")
+    private Integer isRead;
+}

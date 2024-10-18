@@ -1,0 +1,21 @@
+project:
+  name: sfms
+  app-name: sfms
+  version: 1.0.0
+  description: semiconductor fabricator management system
+  base-package: cn.sichu
+  contact:
+    name: sichu huang
+    email: sichu.huang@outlook.com
+    url: https://github.com/lyzsk
+  ## 许可协议信息配置
+  license:
+    name: AGPL-3.0
+    url: https://github.com/lyzsk/sfms?tab=AGPL-3.0-1-ov-file#readme
+
+spring:
+  application:
+    name: sfms
+  profiles:
+    active: dev
+

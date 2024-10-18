@@ -5,15 +5,11 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/sfms-starter/pom.xml" />
-        <option value="$PROJECT_DIR$/sfms-starter/sfms-system/pom.xml" />
-        <option value="$PROJECT_DIR$/sfms-starter/sfms-admin/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/sfms-base/pom.xml" />
-        <option value="$PROJECT_DIR$/sfms-log/pom.xml" />
+        <option value="$PROJECT_DIR$/sfms-core/pom.xml" />
       </set>
     </option>
   </component>

@@ -1,19 +1,19 @@
-const TOKEN_KEY = 'token'
+const TOKEN_KEY = "admin-token";
 
-const isLogin = () => {
-  return !!localStorage.getItem(TOKEN_KEY)
+function getToken(): string {
+  return localStorage.getItem(TOKEN_KEY) || "";
 }
 
-const getToken = () => {
-  return localStorage.getItem(TOKEN_KEY)
+function setToken(token: string) {
+  return localStorage.setItem(TOKEN_KEY, token);
 }
 
-const setToken = (token: string) => {
-  localStorage.setItem(TOKEN_KEY, token)
+function removeToken() {
+  return localStorage.removeItem(TOKEN_KEY);
 }
 
-const clearToken = () => {
-  localStorage.removeItem(TOKEN_KEY)
+function isLogin(): boolean {
+  return !!getToken();
 }
 
-export { isLogin, getToken, setToken, clearToken }
+export { getToken, setToken, removeToken, isLogin };

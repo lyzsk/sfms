@@ -1,112 +1,75 @@
 package cn.sichu.system.mapper;
 
-import cn.sichu.config.mybatis.DataPermissionMapper;
-import cn.sichu.data.mp.datapermission.DataPermission;
-import cn.sichu.security.crypto.annotation.FieldEncrypt;
-import cn.sichu.system.model.entity.UserDO;
-import cn.sichu.system.model.resp.UserDetailResp;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import cn.sichu.annotation.DataPermission;
+import cn.sichu.system.model.bo.UserBO;
+import cn.sichu.system.model.dto.UserAuthInfo;
+import cn.sichu.system.model.dto.UserExportDTO;
+import cn.sichu.system.model.entity.User;
+import cn.sichu.system.model.form.UserForm;
+import cn.sichu.system.model.query.UserPageQuery;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
 /**
  * @author sichu huang
- * @date 2024/10/10
- **/
-public interface UserMapper extends DataPermissionMapper<UserDO> {
+ * @since 2024/10/16 23:25
+ */
+@Mapper
+public interface UserMapper extends BaseMapper<User> {
 
     /**
-     * 分页查询列表
+     * 获取用户分页列表
      *
-     * @param page         分页条件
-     * @param queryWrapper 查询条件
-     * @return com.baomidou.mybatisplus.core.metadata.IPage<cn.sichu.system.model.resp.UserDetailResp> 分页列表信息
+     * @param page        page
+     * @param queryParams 查询参数
+     * @return com.baomidou.mybatisplus.extension.plugins.pagination.Page<cn.sichu.model.bo.UserBO>
      * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @DataPermission(tableAlias = "t1")
-    IPage<UserDetailResp> selectUserPage(@Param("page") IPage<UserDO> page,
-        @Param(Constants.WRAPPER) QueryWrapper<UserDO> queryWrapper);
+     * @since 2024/10/16 23:25:32
+     */
+    @DataPermission(deptAlias = "u")
+    Page<UserBO> listPagedUsers(Page<UserBO> page, UserPageQuery queryParams);
 
     /**
-     * 查询列表
+     * 获取用户表单详情
      *
-     * @param queryWrapper 查询条件
-     * @return java.util.List<cn.sichu.system.model.resp.UserDetailResp> 列表信息
+     * @param userId 用户ID
+     * @return cn.sichu.model.form.UserForm
      * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @DataPermission(tableAlias = "t1")
-    List<UserDetailResp> selectUserList(
-        @Param(Constants.WRAPPER) QueryWrapper<UserDO> queryWrapper);
+     * @since 2024/10/16 23:25:47
+     */
+    UserForm getUserFormData(Long userId);
 
     /**
-     * 根据用户名查询
+     * 根据用户名获取认证信息
      *
-     * @param username 用户名
-     * @return cn.sichu.system.model.entity.UserDO 用户信息
+     * @param username username
+     * @return cn.sichu.model.dto.UserAuthInfo
      * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @Select("SELECT * FROM t_sys_user WHERE username = #{username}")
-    UserDO selectByUsername(@Param("username") String username);
+     * @since 2024/10/16 23:25:58
+     */
+    UserAuthInfo getUserAuthInfo(String username);
 
     /**
-     * 根据手机号查询
+     * 获取导出用户列表
      *
-     * @param phone 手机号
-     * @return cn.sichu.system.model.entity.UserDO 用户信息
+     * @param queryParams queryParams
+     * @return java.util.List<cn.sichu.model.dto.UserExportDTO>
      * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @Select("SELECT * FROM t_sys_user WHERE phone = #{phone}")
-    UserDO selectByPhone(@FieldEncrypt @Param("phone") String phone);
+     * @since 2024/10/16 23:26:08
+     */
+    @DataPermission(deptAlias = "u")
+    List<UserExportDTO> listExportUsers(UserPageQuery queryParams);
 
     /**
-     * 根据邮箱查询
+     * 获取用户个人中心信息
      *
-     * @param email 邮箱
-     * @return cn.sichu.system.model.entity.UserDO 用户信息
+     * @param userId 用户ID
+     * @return cn.sichu.model.bo.UserBO
      * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @Select("SELECT * FROM t_sys_user WHERE email = #{email}")
-    UserDO selectByEmail(@FieldEncrypt @Param("email") String email);
-
-    /**
-     * 根据 ID 查询昵称
-     *
-     * @param id ID
-     * @return java.lang.String 昵称
-     * @author sichu huang
-     * @date 2024/10/12
-     **/
-    @Select("SELECT nickname FROM t_sys_user WHERE id = #{id}")
-    String selectNicknameById(@Param("id") Long id);
-
-    /**
-     * 根据邮箱查询数量
-     *
-     * @param email 邮箱
-     * @param id    id
-     * @return java.lang.Long 用户数量
-     * @author sichu huang
-     * @date 2024/10/12
-     **/
-    Long selectCountByEmail(@FieldEncrypt @Param("email") String email, @Param("id") Long id);
-
-    /**
-     * 根据手机号查询数量
-     *
-     * @param phone 手机号
-     * @param id    id
-     * @return java.lang.Long
-     * @author sichu huang
-     * @date 2024/10/12
-     **/
-    Long selectCountByPhone(@FieldEncrypt @Param("phone") String phone, @Param("id") Long id);
+     * @since 2024/10/16 23:26:17
+     */
+    UserBO getUserProfile(Long userId);
 }

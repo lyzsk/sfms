@@ -1,116 +1,97 @@
+import type { App } from "vue";
 import {
-    type RouteRecordRaw,
-    createRouter,
-    createWebHistory,
+  createRouter,
+  createWebHashHistory,
+  type RouteRecordRaw,
 } from "vue-router";
-import { useRouteStore } from "@/stores";
 
-/** 默认布局 */
-const Layout = () => import("@/layout/index.vue");
+export const Layout = () => import("@/layout/index.vue");
 
-/** 静态路由 */
+// 静态路由
 export const constantRoutes: RouteRecordRaw[] = [
-    {
-        path: "/redirect",
-        component: Layout,
+  {
+    path: "/redirect",
+    component: Layout,
+    meta: { hidden: true },
+    children: [
+      {
+        path: "/redirect/:path(.*)",
+        component: () => import("@/views/redirect/index.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/login",
+    component: () => import("@/views/login/index.vue"),
+    meta: { hidden: true },
+  },
+
+  {
+    path: "/",
+    name: "/",
+    component: Layout,
+    redirect: "/dashboard",
+    children: [
+      {
+        path: "dashboard",
+        component: () => import("@/views/dashboard/index.vue"),
+        // 用于 keep-alive 功能，需要与 SFC 中自动推导或显式声明的组件名称一致
+        // 参考文档: https://cn.vuejs.org/guide/built-ins/keep-alive.html#include-exclude
+        name: "Dashboard",
+        meta: {
+          title: "dashboard",
+          icon: "homepage",
+          affix: true,
+          keepAlive: true,
+        },
+      },
+      {
+        path: "401",
+        component: () => import("@/views/error/401.vue"),
         meta: { hidden: true },
-        children: [
-            {
-                path: "/redirect/:path(.*)",
-                component: () => import("@/views/default/redirect/index.vue"),
-            },
-        ],
-    },
-    {
-        path: "/login",
-        name: "Login",
-        component: () => import("@/views/login/index.vue"),
+      },
+      {
+        path: "404",
+        component: () => import("@/views/error/404.vue"),
         meta: { hidden: true },
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        component: () => import("@/views/default/error/404.vue"),
-        meta: { hidden: true },
-    },
-    {
-        path: "/403",
-        component: () => import("@/views/default/error/403.vue"),
-        meta: { hidden: true },
-    },
-    {
-        path: "/",
-        component: Layout,
-        redirect: "/home",
-        meta: { hidden: false },
-        children: [
-            {
-                path: "/home",
-                name: "Home",
-                component: () => import("@/views/home/index.vue"),
-                meta: {
-                    title: "首页",
-                    icon: "dashboard",
-                    affix: true,
-                    hidden: false,
-                },
-            },
-        ],
-    },
-    // {
-    //   path: '/social/callback',
-    //   component: () => import('@/views/login/social/index.vue'),
-    //   meta: { hidden: true }
-    // },
-    {
-        path: "/pwdExpired",
-        component: () => import("@/views/login/pwdExpired/index.vue"),
-        meta: { hidden: true },
-    },
-    {
-        path: "/setting",
-        name: "Setting",
-        component: Layout,
-        meta: { hidden: true },
-        children: [
-            {
-                path: "/setting/profile",
-                name: "SettingProfile",
-                component: () => import("@/views/setting/profile/index.vue"),
-                meta: { title: "个人中心", showInTabs: false },
-            },
-            {
-                path: "/setting/message",
-                name: "SettingMessage",
-                component: () => import("@/views/setting/message/index.vue"),
-                meta: { title: "消息中心", showInTabs: false },
-            },
-        ],
-    },
+      },
+      {
+        path: "profile",
+        name: "Profile",
+        component: () => import("@/views/profile/index.vue"),
+        meta: { title: "个人中心", icon: "user", hidden: true },
+      },
+      {
+        path: "myNotice",
+        name: "MyNotice",
+        component: () => import("@/views/system/notice/my-notice.vue"),
+        meta: { title: "我的通知", icon: "user", hidden: true },
+      },
+    ],
+  },
 ];
 
+/**
+ * 创建路由
+ */
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: constantRoutes,
-    scrollBehavior: () => ({ left: 0, top: 0 }),
+  history: createWebHashHistory(),
+  routes: constantRoutes,
+  // 刷新时，滚动条位置还原
+  scrollBehavior: () => ({ left: 0, top: 0 }),
 });
 
+// 全局注册 router
+export function setupRouter(app: App<Element>) {
+  app.use(router);
+}
+
 /**
- * @description 重置路由
- * @description 注意：所有动态路由路由必须带有 name 属性，否则可能会不能完全重置干净
+ * 重置路由
  */
 export function resetRouter() {
-    try {
-        const routeStore = useRouteStore();
-        routeStore.asyncRoutes.forEach((route) => {
-            const { name } = route;
-            if (name) {
-                router.hasRoute(name) && router.removeRoute(name);
-            }
-        });
-    } catch (error) {
-        // 强制刷新浏览器也行，只是交互体验不是很好
-        window.location.reload();
-    }
+  router.replace({ path: "/login" });
 }
 
 export default router;

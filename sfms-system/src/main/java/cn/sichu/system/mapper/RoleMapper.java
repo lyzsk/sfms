@@ -1,11 +1,25 @@
 package cn.sichu.system.mapper;
 
-import cn.sichu.data.mp.base.BaseMapper;
-import cn.sichu.system.model.entity.RoleDO;
+import cn.sichu.system.model.entity.Role;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.Set;
 
 /**
  * @author sichu huang
- * @date 2024/10/11
- **/
-public interface RoleMapper extends BaseMapper<RoleDO> {
+ * @since 2024/10/16 23:23
+ */
+@Mapper
+public interface RoleMapper extends BaseMapper<Role> {
+
+    /**
+     * 获取最大范围的数据权限
+     *
+     * @param roles roles
+     * @return java.lang.Integer
+     * @author sichu huang
+     * @since 2024/10/16 23:23:44
+     */
+    Integer getMaximumDataScope(Set<String> roles);
 }

@@ -1,88 +1,98 @@
 <template>
-    <a-breadcrumb>
-        <a-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="index">
-            <span
-                v-if="
-                    item.redirect === 'noRedirect' ||
-                    item.redirect === '' ||
-                    index === breadcrumbList.length - 1
-                "
-                class="gi_line_1"
-            >
-                {{ item.meta.title }}
-            </span>
-            <span
-                v-else
-                class="gi_line_1 breadcrumb-item-title"
-                @click="handleLink(item)"
-                >{{ item.meta.title }}</span
-            >
-        </a-breadcrumb-item>
-    </a-breadcrumb>
+  <el-breadcrumb class="flex-y-center">
+    <transition-group
+      enter-active-class="animate__animated animate__fadeInRight"
+    >
+      <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="item.path">
+        <span
+          v-if="
+            item.redirect === 'noredirect' || index === breadcrumbs.length - 1
+          "
+          class="color-gray-400"
+        >
+          {{ translateRouteTitle(item.meta.title) }}
+        </span>
+        <a v-else @click.prevent="handleLink(item)">
+          {{ translateRouteTitle(item.meta.title) }}
+        </a>
+      </el-breadcrumb-item>
+    </transition-group>
+  </el-breadcrumb>
 </template>
 
 <script setup lang="ts">
-import type { RouteLocationMatched } from "vue-router";
-import { findTree } from "xe-utils";
-import { useRouteStore } from "@/stores";
+import { RouteLocationMatched } from "vue-router";
+import { compile } from "path-to-regexp";
+import router from "@/router";
+import { translateRouteTitle } from "@/utils/i18n";
 
-const route = useRoute();
-const router = useRouter();
-const { routes } = useRouteStore();
-
-let home: RouteLocationMatched | null = null;
-const getHome = () => {
-    if (!home) {
-        const cloneRoutes = JSON.parse(
-            JSON.stringify(routes)
-        ) as RouteLocationMatched[];
-        const obj = findTree(cloneRoutes, (i) => i.path === "/home");
-        home = obj.item;
-    }
+const currentRoute = useRoute();
+const pathCompile = (path: string) => {
+  const { params } = currentRoute;
+  const toPath = compile(path);
+  return toPath(params);
 };
 
-const breadcrumbList = ref<RouteLocationMatched[]>([]);
-function getBreadcrumbList() {
-    getHome();
-    const cloneRoutes = JSON.parse(
-        JSON.stringify(routes)
-    ) as RouteLocationMatched[];
-    const obj = findTree(cloneRoutes, (i) => i.path === route.path);
-    // 获取当前节点的所有上级节点集合，包含当前节点
-    const arr = obj
-        ? obj.nodes.filter(
-              (item) =>
-                  item.meta && item.meta.title && item.meta.breadcrumb !== false
-          )
-        : [];
-    if (home) {
-        breadcrumbList.value = [home, ...arr];
-    }
-}
-getBreadcrumbList();
+const breadcrumbs = ref<Array<RouteLocationMatched>>([]);
 
-watchEffect(() => {
-    if (route.path.startsWith("/redirect/")) return;
-    getBreadcrumbList();
+function getBreadcrumb() {
+  let matched = currentRoute.matched.filter(
+    (item) => item.meta && item.meta.title
+  );
+  const first = matched[0];
+  if (!isDashboard(first)) {
+    matched = [
+      { path: "/dashboard", meta: { title: "dashboard" } } as any,
+    ].concat(matched);
+  }
+  breadcrumbs.value = matched.filter((item) => {
+    return item.meta && item.meta.title && item.meta.breadcrumb !== false;
+  });
+}
+
+function isDashboard(route: RouteLocationMatched) {
+  const name = route && route.name;
+  if (!name) {
+    return false;
+  }
+  return (
+    name.toString().trim().toLocaleLowerCase() ===
+    "Dashboard".toLocaleLowerCase()
+  );
+}
+
+function handleLink(item: any) {
+  const { redirect, path } = item;
+  if (redirect) {
+    router.push(redirect).catch((err) => {
+      console.warn(err);
+    });
+    return;
+  }
+  router.push(pathCompile(path)).catch((err) => {
+    console.warn(err);
+  });
+}
+
+watch(
+  () => currentRoute.path,
+  (path) => {
+    if (path.startsWith("/redirect/")) {
+      return;
+    }
+    getBreadcrumb();
+  }
+);
+
+onBeforeMount(() => {
+  getBreadcrumb();
 });
-
-// 路由跳转
-function handleLink(item: RouteLocationMatched) {
-    const { redirect, path } = item;
-    if (redirect) {
-        return router.push(redirect as string);
-    }
-    router.push(path);
-}
 </script>
 
-<style scoped lang="scss">
-.breadcrumb-item-title {
-    transition: all 0.3s;
-    cursor: pointer;
-    &:hover {
-        color: $color-theme;
-        font-weight: 600;
-    }
+<style lang="scss" scoped>
+// 覆盖 element-plus 的样式
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  font-weight: 400 !important;
 }
 </style>

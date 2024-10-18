@@ -1,65 +1,62 @@
 package cn.sichu.system.service.impl;
 
-import cn.crane4j.annotation.ContainerMethod;
-import cn.crane4j.annotation.MappingType;
-import cn.hutool.core.collection.CollUtil;
-import cn.sichu.constant.ContainerConstants;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.sichu.system.mapper.UserRoleMapper;
-import cn.sichu.system.model.entity.UserRoleDo;
-import cn.sichu.system.service.IUserRoleService;
-import lombok.RequiredArgsConstructor;
+import cn.sichu.system.model.entity.UserRole;
+import cn.sichu.system.service.UserRoleService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author sichu huang
- * @date 2024/10/11
- **/
+ * @since 2024/10/17 16:22
+ */
 @Service
-@RequiredArgsConstructor
-public class UserRoleServiceImpl implements IUserRoleService {
-
-    private final UserRoleMapper userRoleMapper;
+public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole>
+    implements UserRoleService {
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean add(List<Long> roleIds, Long userId) {
-        // 检查是否有变更
-        List<Long> oldRoleIdList = userRoleMapper.lambdaQuery().select(UserRoleDo::getRoleId)
-            .eq(UserRoleDo::getUserId, userId).list().stream().map(UserRoleDo::getRoleId).toList();
-        if (CollUtil.isEmpty(CollUtil.disjunction(roleIds, oldRoleIdList))) {
+    public boolean saveUserRoles(Long userId, List<Long> roleIds) {
+        if (userId == null || CollectionUtil.isEmpty(roleIds)) {
             return false;
         }
-        // 删除原有关联
-        userRoleMapper.lambdaUpdate().eq(UserRoleDo::getUserId, userId).remove();
-        // 保存最新关联
-        List<UserRoleDo> userRoleList =
-            roleIds.stream().map(roleId -> new UserRoleDo(userId, roleId)).toList();
-        return userRoleMapper.insertBatch(userRoleList);
+        // 用户原角色ID集合
+        List<Long> userRoleIds =
+            this.list(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId)).stream()
+                .map(UserRole::getRoleId).collect(Collectors.toList());
+        // 新增用户角色
+        List<Long> saveRoleIds;
+        if (CollectionUtil.isEmpty(userRoleIds)) {
+            saveRoleIds = roleIds;
+        } else {
+            saveRoleIds = roleIds.stream().filter(roleId -> !userRoleIds.contains(roleId))
+                .collect(Collectors.toList());
+        }
+        List<UserRole> saveUserRoles =
+            saveRoleIds.stream().map(roleId -> new UserRole(userId, roleId))
+                .collect(Collectors.toList());
+        this.saveBatch(saveUserRoles);
+        // 删除用户角色
+        if (CollectionUtil.isNotEmpty(userRoleIds)) {
+            List<Long> removeRoleIds =
+                userRoleIds.stream().filter(roleId -> !roleIds.contains(roleId))
+                    .collect(Collectors.toList());
+
+            if (CollectionUtil.isNotEmpty(removeRoleIds)) {
+                this.remove(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId)
+                    .in(UserRole::getRoleId, removeRoleIds));
+            }
+        }
+        return true;
     }
 
     @Override
-    public void deleteByUserIds(List<Long> userIds) {
-        userRoleMapper.lambdaUpdate().in(UserRoleDo::getUserId, userIds).remove();
+    public boolean hasAssignedUsers(Long roleId) {
+        int count = this.baseMapper.countUsersForRole(roleId);
+        return count > 0;
     }
-
-    @Override
-    public void saveBatch(List<UserRoleDo> list) {
-        userRoleMapper.insertBatch(list);
-    }
-
-    @Override
-    @ContainerMethod(namespace = ContainerConstants.USER_ROLE_ID_LIST,
-        type = MappingType.ORDER_OF_KEYS)
-    public List<Long> listRoleIdByUserId(Long userId) {
-        return userRoleMapper.selectRoleIdByUserId(userId);
-    }
-
-    @Override
-    public boolean isRoleIdExists(List<Long> roleIds) {
-        return userRoleMapper.lambdaQuery().in(UserRoleDo::getRoleId, roleIds).exists();
-    }
-
 }

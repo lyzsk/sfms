@@ -1,52 +1,26 @@
 import { createApp } from "vue";
-import ArcoVue, { Card, Drawer, Modal } from "@arco-design/web-vue";
-import "@/styles/arco-ui/index.less";
-import "md-editor-v3/lib/style.css";
-// import '@arco-themes/vue-gi-demo/index.less'
-// import '@arco-design/web-vue/dist/arco.css'
-
-// 额外引入 Arco Design Icon图标库
-import ArcoVueIcon from "@arco-design/web-vue/es/icon";
 import App from "./App.vue";
-import router from "./router";
+import setupPlugins from "@/plugins";
 
-import "@/router/permission";
-
-// 使用动画库
-import "animate.css/animate.min.css";
-
-// 自定义过渡动画
-import "@/styles/css/transition.css";
-
-// 导入全局scss主文件
-import "@/styles/index.scss";
-
-// 支持SVG
+// 本地SVG图标
 import "virtual:svg-icons-register";
 
-// 自定义指令
-import directives from "./directives";
-import pinia from "@/stores";
+// 样式
+import "element-plus/theme-chalk/dark/css-vars.css";
+import "@/styles/index.scss";
+import "uno.css";
+import "animate.css";
 
+// 粒子特效
 import Particles from "@tsparticles/vue3";
 import { loadFull } from "tsparticles";
 
-// 对特定组件进行默认配置
-Card.props.bordered = false;
-
 const app = createApp(App);
-Modal._context = app._context;
-Drawer._context = app._context;
-
+// 注册插件
 app.use(Particles, {
     init: async (engine) => {
         await loadFull(engine);
     },
 });
-app.use(router);
-app.use(pinia);
-app.use(ArcoVue);
-app.use(ArcoVueIcon);
-app.use(directives);
-
+app.use(setupPlugins);
 app.mount("#app");

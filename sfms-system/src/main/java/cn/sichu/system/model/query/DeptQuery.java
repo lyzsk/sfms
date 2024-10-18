@@ -1,36 +1,21 @@
 package cn.sichu.system.model.query;
 
-import cn.sichu.data.core.annotation.Query;
-import cn.sichu.data.core.enums.QueryType;
-import cn.sichu.enums.DisEnableStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
- * 部门查询条件
+ * 部门查询对象
  *
  * @author sichu huang
- * @date 2024/10/10
- **/
+ * @since 2024/10/16 22:57
+ */
 @Data
-@Schema(description = "部门查询条件")
-public class DeptQuery implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+@Schema(description = "部门分页查询对象")
+public class DeptQuery {
+    
+    @Schema(description = "关键字(部门名称)")
+    private String keywords;
 
-    /**
-     * 关键词
-     **/
-    @Schema(description = "关键词", example = "测试部")
-    @Query(columns = {"name", "description"}, type = QueryType.LIKE)
-    private String description;
-
-    /**
-     * 状态
-     **/
-    @Schema(description = "状态", example = "1")
-    private DisEnableStatusEnum status;
+    @Schema(description = "状态(1->正常；0->禁用)")
+    private Integer status;
 }

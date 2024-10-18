@@ -1,60 +1,100 @@
 package cn.sichu.system.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.sichu.constant.SecurityConstants;
 import cn.sichu.system.mapper.RoleMenuMapper;
-import cn.sichu.system.model.entity.RoleMenuDo;
-import cn.sichu.system.service.IRoleMenuService;
+import cn.sichu.system.model.bo.RolePermsBO;
+import cn.sichu.system.model.entity.RoleMenu;
+import cn.sichu.system.service.RoleMenuService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * @author sichu huang
- * @date 2024/10/11
- **/
+ * @since 2024/10/17 16:18
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class RoleMenuServiceImpl implements IRoleMenuService {
-    
-    private final RoleMenuMapper roleMenuMapper;
+public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu>
+    implements RoleMenuService {
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean add(List<Long> menuIds, Long roleId) {
-        // 检查是否有变更
-        List<Long> oldMenuIdList =
-            roleMenuMapper.lambdaQuery().select(RoleMenuDo::getMenuId)
-                .eq(RoleMenuDo::getRoleId, roleId).list().stream()
-                .map(RoleMenuDo::getMenuId).collect(Collectors.toList());
-        if (CollUtil.isEmpty(CollUtil.disjunction(menuIds, oldMenuIdList))) {
-            return false;
-        }
-        // 删除原有关联
-        roleMenuMapper.lambdaUpdate().eq(RoleMenuDo::getRoleId, roleId)
-            .remove();
-        // 保存最新关联
-        List<RoleMenuDo> roleMenuList =
-            menuIds.stream().map(menuId -> new RoleMenuDo(roleId, menuId))
-                .toList();
-        return roleMenuMapper.insertBatch(roleMenuList);
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    /**
+     * 初始化权限缓存
+     */
+    @PostConstruct
+    public void initRolePermsCache() {
+        log.info("初始化权限缓存... ");
+        refreshRolePermsCache();
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteByRoleIds(List<Long> roleIds) {
-        roleMenuMapper.lambdaUpdate().in(RoleMenuDo::getRoleId, roleIds)
-            .remove();
+    public void refreshRolePermsCache() {
+        // 清理权限缓存
+        redisTemplate.opsForHash().delete(SecurityConstants.ROLE_PERMS_PREFIX, "*");
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(null);
+        if (CollectionUtil.isNotEmpty(list)) {
+            list.forEach(item -> {
+                String roleCode = item.getRoleCode();
+                Set<String> perms = item.getPerms();
+                if (CollectionUtil.isNotEmpty(perms)) {
+                    redisTemplate.opsForHash()
+                        .put(SecurityConstants.ROLE_PERMS_PREFIX, roleCode, perms);
+                }
+            });
+        }
     }
 
     @Override
-    public List<Long> listMenuIdByRoleIds(List<Long> roleIds) {
-        if (CollUtil.isEmpty(roleIds)) {
-            return new ArrayList<>(0);
+    public void refreshRolePermsCache(String roleCode) {
+        // 清理权限缓存
+        redisTemplate.opsForHash().delete(SecurityConstants.ROLE_PERMS_PREFIX, roleCode);
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(roleCode);
+        if (CollectionUtil.isNotEmpty(list)) {
+            RolePermsBO rolePerms = list.get(0);
+            if (rolePerms == null) {
+                return;
+            }
+            Set<String> perms = rolePerms.getPerms();
+            if (CollectionUtil.isNotEmpty(perms)) {
+                redisTemplate.opsForHash()
+                    .put(SecurityConstants.ROLE_PERMS_PREFIX, roleCode, perms);
+            }
         }
-        return roleMenuMapper.selectMenuIdByRoleIds(roleIds);
+    }
+
+    @Override
+    public void refreshRolePermsCache(String oldRoleCode, String newRoleCode) {
+        // 清理旧角色权限缓存
+        redisTemplate.opsForHash().delete(SecurityConstants.ROLE_PERMS_PREFIX, oldRoleCode);
+        // 添加新角色权限缓存
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(newRoleCode);
+        if (CollectionUtil.isNotEmpty(list)) {
+            RolePermsBO rolePerms = list.get(0);
+            if (rolePerms == null) {
+                return;
+            }
+            Set<String> perms = rolePerms.getPerms();
+            redisTemplate.opsForHash().put(SecurityConstants.ROLE_PERMS_PREFIX, newRoleCode, perms);
+        }
+    }
+
+    @Override
+    public Set<String> getRolePermsByRoleCodes(Set<String> roles) {
+        return this.baseMapper.listRolePerms(roles);
+    }
+
+    @Override
+    public List<Long> listMenuIdsByRoleId(Long roleId) {
+        return this.baseMapper.listMenuIdsByRoleId(roleId);
     }
 }

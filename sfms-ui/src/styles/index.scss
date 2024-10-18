@@ -1,14 +1,32 @@
-// 基础样式
-@import './base.scss';
+@use "./reset";
 
-// 全局类名样式
-@import './global.scss';
+.app-container {
+  padding: 15px;
+}
 
-// 自定义 nprogress 插件进度条颜色
-@import './nprogress.scss';
+.search-container {
+  padding: 18px 0 0 10px;
+  margin-bottom: 10px;
+  background-color: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 4px;
+  box-shadow: var(--el-box-shadow-light);
+}
 
-// 富文本的css主题颜色变量
-@import './editor.scss';
+.table-container > .el-card__header {
+  padding: calc(var(--el-card-padding) - 8px) var(--el-card-padding);
+}
 
-// 动画类名
-@import './animated.scss';
+.link-type,
+.link-type:focus {
+  color: #337ab7;
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(32 160 255);
+  }
+}
+
+.search-container .el-form .el-input {
+  width: 16rem !important;
+}

@@ -3,14 +3,10 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/sfms-admin/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sfms-admin/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-base/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-base/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sfms-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sfms-common/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-log/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-log/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-starter/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sfms-starter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sfms-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sfms-core/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sfms-system/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/sfms-system/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />

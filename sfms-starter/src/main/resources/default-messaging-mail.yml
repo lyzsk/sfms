@@ -1,3 +1,0 @@
---- ### 邮件配置
-spring.mail:
-  default-encoding: utf-8

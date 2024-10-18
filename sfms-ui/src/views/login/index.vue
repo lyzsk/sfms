@@ -1,479 +1,358 @@
 <template>
-    <div class="login pc">
-        <h3 class="login-logo">
-            <img v-if="logo" :src="logo" alt="logo" />
-            <img v-else src="/logo.svg" alt="logo" />
-            <span>{{ title }}</span>
-        </h3>
+    <div class="login-container">
+        <div class="flex-x-between absolute-lt w-full p-2">
+            <div class="flex-center">
+                <el-image :src="logo" style="width: 30px; height: 30px" />
+                <span
+                    class="text-2xl font-bold bg-gradient-to-r from-blue-500 to-teal-500 text-transparent bg-clip-text mx-1"
+                >
+                    {{ defaultSettings.title }}
+                </span>
+                <el-tag size="small" type="success">
+                    {{ defaultSettings.version }}
+                </el-tag>
+            </div>
 
-        <a-row justify="center" align="stretch" class="login-box">
-            <!-- <a-col :xs="0" :sm="12" :md="13">
-                <div class="login-left">
-                    <img
-                        class="login-left__img"
-                        src="@/assets/images/banner.png"
-                        alt="banner"
-                    />
-                </div>
-            </a-col> -->
-            <a-col :xs="24" :sm="12" :md="12">
-                <div class="login-right">
-                    <h3 v-if="isEmailLogin" class="login-right__title">
-                        邮箱登录
-                    </h3>
-                    <EmailLogin v-show="isEmailLogin" />
-                    <a-tabs v-show="!isEmailLogin" class="login-right__form">
-                        <a-tab-pane key="1" title="账号登录">
-                            <AccountLogin />
-                        </a-tab-pane>
-                        <a-tab-pane key="2" title="手机号登录">
-                            <PhoneLogin />
-                        </a-tab-pane>
-                    </a-tabs>
-                    <div class="login-right__oauth">
-                        <a-divider orientation="center">其他登录方式</a-divider>
-                        <div class="list">
-                            <div
-                                v-if="isEmailLogin"
-                                class="mode item"
-                                @click="toggleLoginMode"
-                            >
-                                <icon-user /> 账号/手机号登录
-                            </div>
-                            <div
-                                v-else
-                                class="mode item"
-                                @click="toggleLoginMode"
-                            >
-                                <icon-email /> 邮箱登录
-                            </div>
-                            <!-- <a
-                                class="item"
-                                title="使用 Gitee 账号登录"
-                                @click="onOauth('gitee')"
-                            >
-                                <GiSvgIcon name="gitee" :size="24" />
-                            </a>
-                            <a
-                                class="item"
-                                title="使用 GitHub 账号登录"
-                                @click="onOauth('github')"
-                            >
-                                <GiSvgIcon name="github" :size="24" />
-                            </a> -->
-                        </div>
-                    </div>
-                </div>
-            </a-col>
-        </a-row>
-
-        <div v-if="isDesktop" class="footer">
-            <div class="beian">
-                <div class="below text">
-                    {{ appStore.getCopyright()
-                    }}{{
-                        appStore.getForRecord()
-                            ? ` · ${appStore.getForRecord()}`
-                            : ""
-                    }}
-                </div>
+            <div class="flex-center">
+                <el-switch
+                    v-model="isDark"
+                    inline-prompt
+                    active-icon="Moon"
+                    inactive-icon="Sunny"
+                    @change="toggleTheme"
+                />
+                <lang-select class="ml-2 cursor-pointer" />
             </div>
         </div>
 
-        <GiThemeBtn class="theme-btn" />
+        <!-- 登录表单 -->
+        <div class="login-content">
+            <div class="login-image">
+                <el-image
+                    :src="loginImage"
+                    style="width: 210px; height: 210px"
+                />
+            </div>
+            <div class="login-box">
+                <el-form
+                    ref="loginFormRef"
+                    :model="loginData"
+                    :rules="loginRules"
+                    class="login-form"
+                >
+                    <h2
+                        class="text-xl font-medium text-center flex-center relative"
+                    >
+                        {{ $t("login.login") }}
+                        <el-dropdown style="position: absolute; right: 0">
+                            <div class="cursor-pointer">
+                                <el-icon>
+                                    <arrow-down />
+                                </el-icon>
+                            </div>
+                        </el-dropdown>
+                    </h2>
+
+                    <!-- 用户名 -->
+                    <el-form-item prop="username">
+                        <div class="input-wrapper">
+                            <el-icon class="mx-2">
+                                <User />
+                            </el-icon>
+                            <el-input
+                                ref="username"
+                                v-model="loginData.username"
+                                :placeholder="$t('login.username')"
+                                name="username"
+                                size="large"
+                                class="h-[48px]"
+                            />
+                        </div>
+                    </el-form-item>
+
+                    <!-- 密码 -->
+                    <el-tooltip
+                        :visible="isCapslock"
+                        :content="$t('login.capsLock')"
+                        placement="right"
+                    >
+                        <el-form-item prop="password">
+                            <div class="input-wrapper">
+                                <el-icon class="mx-2">
+                                    <Lock />
+                                </el-icon>
+                                <el-input
+                                    v-model="loginData.password"
+                                    :placeholder="$t('login.password')"
+                                    type="password"
+                                    name="password"
+                                    size="large"
+                                    class="h-[48px] pr-2"
+                                    show-password
+                                    @keyup="checkCapslock"
+                                    @keyup.enter="handleLoginSubmit"
+                                />
+                            </div>
+                        </el-form-item>
+                    </el-tooltip>
+
+                    <!-- 验证码 -->
+                    <el-form-item prop="captchaCode">
+                        <div class="input-wrapper">
+                            <svg-icon icon-class="captcha" class="mx-2" />
+                            <el-input
+                                v-model="loginData.captchaCode"
+                                auto-complete="off"
+                                size="large"
+                                class="flex-1"
+                                :placeholder="$t('login.captchaCode')"
+                                @keyup.enter="handleLoginSubmit"
+                            />
+
+                            <el-image
+                                :src="captchaBase64"
+                                class="captcha-image"
+                                @click="getCaptcha"
+                            />
+                        </div>
+                    </el-form-item>
+
+                    <div class="flex-x-between w-full py-1">
+                        <el-checkbox>
+                            {{ $t("login.rememberMe") }}
+                        </el-checkbox>
+
+                        <el-link type="primary" href="/forget-password">
+                            {{ $t("login.forgetPassword") }}
+                        </el-link>
+                    </div>
+
+                    <!-- 登录按钮 -->
+                    <el-button
+                        :loading="loading"
+                        type="primary"
+                        size="large"
+                        class="w-full"
+                        @click.prevent="handleLoginSubmit"
+                    >
+                        {{ $t("login.login") }}
+                    </el-button>
+
+                    <el-divider>
+                        <span class="text-12px">{{
+                            $t("login.otherLoginMethods")
+                        }}</span>
+                    </el-divider>
+
+                    <!-- 第三方登录 -->
+                    <div class="flex-x-center text-lg color-gray-5">
+                        <svg-icon icon-class="wechat" class="cursor-pointer" />
+                        <svg-icon icon-class="qq" class="cursor-pointer ml-5" />
+                        <svg-icon
+                            icon-class="github"
+                            class="cursor-pointer ml-5"
+                        />
+                        <svg-icon
+                            icon-class="gitee"
+                            class="cursor-pointer ml-5"
+                        />
+                    </div>
+                </el-form>
+            </div>
+        </div>
+
+        <!-- ICP备案 -->
+        <div class="absolute bottom-0 w-full text-center text-12px">
+            <p>
+                <a
+                    href="https://github.com/lyzsk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hover:underline"
+                >
+                    Copyright © 2024 - Present Sichu Huang All Rights Reserved.
+                </a>
+            </p>
+        </div>
         <Background />
     </div>
 </template>
 
 <script setup lang="ts">
-import Background from "./components/background/index.vue";
-import AccountLogin from "./components/account/index.vue";
-import PhoneLogin from "./components/phone/index.vue";
-import EmailLogin from "./components/email/index.vue";
-// import { socialAuth } from "@/apis/auth";
-import { useAppStore } from "@/stores";
-import { useDevice } from "@/hooks";
+// 外部库和依赖
+import { LocationQuery, useRoute } from "vue-router";
 
-defineOptions({ name: "Login" });
+// 内部依赖
+import { useSettingsStore, useUserStore } from "@/store";
+import AuthAPI, { type LoginData } from "@/api/auth";
+import router from "@/router";
+import defaultSettings from "@/settings";
+import { ThemeEnum } from "@/enums/ThemeEnum";
 
-const { isDesktop } = useDevice();
-const appStore = useAppStore();
-const title = computed(() => appStore.getTitle());
-const logo = computed(() => appStore.getLogo());
+// 类型定义
+import type { FormInstance } from "element-plus";
 
-const isEmailLogin = ref(false);
-// 切换登录模式
-const toggleLoginMode = () => {
-    isEmailLogin.value = !isEmailLogin.value;
+// 导入 login.scss 文件
+import "@/styles/login.scss";
+
+// 使用导入的依赖和库
+const userStore = useUserStore();
+const settingsStore = useSettingsStore();
+const route = useRoute();
+// 窗口高度
+const { height } = useWindowSize();
+// 国际化 Internationalization
+const { t } = useI18n();
+
+// 是否暗黑模式
+const isDark = ref(settingsStore.theme === ThemeEnum.DARK);
+// 是否显示 ICP 备案信息
+const icpVisible = ref(true);
+// 按钮 loading 状态
+const loading = ref(false);
+// 是否大写锁定
+const isCapslock = ref(false);
+// 验证码图片Base64字符串
+const captchaBase64 = ref();
+// 登录表单ref
+const loginFormRef = ref<FormInstance>();
+
+const logo = ref(new URL("../../assets/logo.png", import.meta.url).href);
+
+const loginImage = ref(
+    new URL("../../assets/images/login-image.svg", import.meta.url).href
+);
+
+const loginData = ref<LoginData>({
+    username: "admin",
+    password: "",
+    captchaKey: "",
+    captchaCode: "",
+});
+
+const loginRules = computed(() => {
+    return {
+        username: [
+            {
+                required: true,
+                trigger: "blur",
+                message: t("login.message.username.required"),
+            },
+        ],
+        password: [
+            {
+                required: true,
+                trigger: "blur",
+                message: t("login.message.password.required"),
+            },
+            {
+                min: 6,
+                message: t("login.message.password.min"),
+                trigger: "blur",
+            },
+        ],
+        captchaCode: [
+            {
+                required: true,
+                trigger: "blur",
+                message: t("login.message.captchaCode.required"),
+            },
+        ],
+    };
+});
+
+/** 获取验证码 */
+function getCaptcha() {
+    AuthAPI.getCaptcha().then((data) => {
+        loginData.value.captchaKey = data.captchaKey;
+        captchaBase64.value = data.captchaBase64;
+    });
+}
+
+/** 登录表单提交 */
+function handleLoginSubmit() {
+    loginFormRef.value?.validate((valid: boolean) => {
+        if (valid) {
+            loading.value = true;
+            userStore
+                .login(loginData.value)
+                .then(() => {
+                    const { path, queryParams } = parseRedirect();
+                    router.push({ path: path, query: queryParams });
+                })
+                .catch(() => {
+                    getCaptcha();
+                })
+                .finally(() => {
+                    loading.value = false;
+                });
+        }
+    });
+}
+
+/** 解析 redirect 字符串 为 path 和  queryParams */
+function parseRedirect(): {
+    path: string;
+    queryParams: Record<string, string>;
+} {
+    const query: LocationQuery = route.query;
+    const redirect = (query.redirect as string) ?? "/";
+
+    const url = new URL(redirect, window.location.origin);
+    const path = url.pathname;
+    const queryParams: Record<string, string> = {};
+
+    url.searchParams.forEach((value, key) => {
+        queryParams[key] = value;
+    });
+
+    return { path, queryParams };
+}
+
+/** 主题切换 */
+const toggleTheme = () => {
+    const newTheme =
+        settingsStore.theme === ThemeEnum.DARK
+            ? ThemeEnum.LIGHT
+            : ThemeEnum.DARK;
+    settingsStore.changeTheme(newTheme);
 };
-</script>
 
-<style scoped lang="scss">
-@media screen and (max-width: 570px) {
-    .pc {
-        display: none !important;
+/** 根据屏幕宽度切换设备模式 */
+watchEffect(() => {
+    if (height.value < 600) {
+        icpVisible.value = false;
+    } else {
+        icpVisible.value = true;
     }
+});
 
-    .login {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: center;
-        background-color: var(--color-bg-5);
-        color: #121314;
-
-        &-logo {
-            width: 100%;
-            height: 104px;
-            font-weight: 700;
-            font-size: 20px;
-            line-height: 32px;
-            display: flex;
-            padding: 0 20px;
-            align-items: center;
-            justify-content: start;
-            background-size: 100% 100%;
-            box-sizing: border-box;
-
-            img {
-                width: 34px;
-                height: 34px;
-                margin-right: 8px;
-            }
-        }
-
-        &-box {
-            width: 100%;
-            display: flex;
-            z-index: 999;
-        }
-    }
-
-    .login-right {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: 30px 30px 0;
-        box-sizing: border-box;
-
-        &__title {
-            color: var(--color-text-1);
-            font-weight: 500;
-            font-size: 20px;
-            line-height: 32px;
-            margin-bottom: 20px;
-        }
-
-        &__form {
-            :deep(.arco-tabs-nav-tab) {
-                display: flex;
-                justify-content: start;
-                align-items: center;
-            }
-
-            :deep(.arco-tabs-tab) {
-                color: var(--color-text-2);
-                margin: 0 20px 0 0;
-            }
-
-            :deep(.arco-tabs-tab-title) {
-                font-size: 16px;
-                font-weight: 500;
-                line-height: 22px;
-            }
-
-            :deep(.arco-tabs-content) {
-                margin-top: 10px;
-            }
-
-            :deep(.arco-tabs-tab-active),
-            :deep(.arco-tabs-tab-title:hover) {
-                color: rgb(var(--arcoblue-6));
-            }
-
-            :deep(.arco-tabs-nav::before) {
-                display: none;
-            }
-
-            :deep(.arco-tabs-tab-title:before) {
-                display: none;
-            }
-        }
-
-        &__oauth {
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            padding-bottom: 20px;
-
-            :deep(.arco-divider-text) {
-                color: var(--color-text-4);
-                font-size: 12px;
-                font-weight: 400;
-                line-height: 20px;
-            }
-
-            .list {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-                width: 100%;
-
-                .item {
-                    margin-right: 15px;
-                }
-
-                .mode {
-                    color: var(--color-text-2);
-                    font-size: 12px;
-                    font-weight: 400;
-                    line-height: 20px;
-                    padding: 6px 10px;
-                    align-items: center;
-                    border: 1px solid var(--color-border-3);
-                    border-radius: 32px;
-                    box-sizing: border-box;
-                    display: flex;
-                    height: 32px;
-                    justify-content: center;
-                    cursor: pointer;
-
-                    .icon {
-                        width: 21px;
-                        height: 20px;
-                    }
-                }
-
-                .mode svg {
-                    font-size: 16px;
-                    margin-right: 10px;
-                }
-
-                .mode:hover,
-                .mode svg:hover {
-                    background: rgba(var(--primary-6), 0.05);
-                    border: 1px solid rgb(var(--primary-3));
-                    color: rgb(var(--arcoblue-6));
-                }
-            }
-        }
-    }
-
-    .theme-btn {
-        position: fixed;
-        top: 20px;
-        right: 30px;
-        z-index: 9999;
-    }
-
-    .footer {
-        align-items: center;
-        box-sizing: border-box;
-        position: absolute;
-        bottom: 10px;
-        z-index: 999;
-
-        .beian {
-            .text {
-                font-size: 12px;
-                font-weight: 400;
-                letter-spacing: 0.2px;
-                line-height: 20px;
-                text-align: center;
-            }
-
-            .below {
-                align-items: center;
-                display: flex;
-            }
-        }
+/** 检查输入大小写 */
+function checkCapslock(event: KeyboardEvent) {
+    // 防止浏览器密码自动填充时报错
+    if (event instanceof KeyboardEvent) {
+        isCapslock.value = event.getModifierState("CapsLock");
     }
 }
 
-@media screen and (min-width: 571px) {
-    // .h5 {
-    //     display: none !important;
-    // }
+/** 设置登录凭证 */
+const setLoginCredentials = (username: string, password: string) => {
+    loginData.value.username = username;
+    loginData.value.password = password;
+};
 
-    .login {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--color-bg-5);
+onMounted(() => {
+    getCaptcha();
+});
+</script>
 
-        &-logo {
-            position: fixed;
-            top: 20px;
-            left: 30px;
-            z-index: 9999;
-            color: var(--color-text-1);
-            font-weight: 500;
-            font-size: 20px;
-            line-height: 32px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            img {
-                width: 34px;
-                height: 34px;
-                margin-right: 8px;
-            }
-        }
-
-        &-box {
-            width: 86%;
-            max-width: 850px;
-            height: 490px;
-            display: flex;
-            z-index: 999;
-            box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.08);
-        }
-    }
-
-    .login-right {
-        width: 100%;
-        height: 100%;
-        background: var(--color-bg-1);
-        display: flex;
-        flex-direction: column;
-        padding: 30px 30px 0;
-        box-sizing: border-box;
-
-        &__title {
-            color: var(--color-text-1);
-            font-weight: 500;
-            font-size: 20px;
-            line-height: 32px;
-            margin-bottom: 20px;
-        }
-
-        &__form {
-            :deep(.arco-tabs-nav-tab) {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            :deep(.arco-tabs-tab) {
-                color: var(--color-text-2);
-            }
-
-            :deep(.arco-tabs-tab-title) {
-                font-size: 16px;
-                font-weight: 500;
-                line-height: 22px;
-            }
-
-            :deep(.arco-tabs-content) {
-                margin-top: 10px;
-            }
-
-            :deep(.arco-tabs-tab-active),
-            :deep(.arco-tabs-tab-title:hover) {
-                color: rgb(var(--arcoblue-6));
-            }
-
-            :deep(.arco-tabs-nav::before) {
-                display: none;
-            }
-
-            :deep(.arco-tabs-tab-title:before) {
-                display: none;
-            }
-        }
-
-        &__oauth {
-            margin-top: auto;
-            margin-bottom: 20px;
-
-            :deep(.arco-divider-text) {
-                color: var(--color-text-4);
-                font-size: 12px;
-                font-weight: 400;
-                line-height: 20px;
-            }
-
-            .list {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-                width: 100%;
-
-                .item {
-                    margin-right: 15px;
-                }
-
-                .mode {
-                    color: var(--color-text-2);
-                    font-size: 12px;
-                    font-weight: 400;
-                    line-height: 20px;
-                    padding: 6px 10px;
-                    align-items: center;
-                    border: 1px solid var(--color-border-3);
-                    border-radius: 32px;
-                    box-sizing: border-box;
-                    display: flex;
-                    height: 32px;
-                    justify-content: center;
-                    cursor: pointer;
-
-                    .icon {
-                        width: 21px;
-                        height: 20px;
-                    }
-                }
-
-                .mode svg {
-                    font-size: 16px;
-                    margin-right: 10px;
-                }
-
-                .mode:hover,
-                .mode svg:hover {
-                    background: rgba(var(--primary-6), 0.05);
-                    border: 1px solid rgb(var(--primary-3));
-                    color: rgb(var(--arcoblue-6));
-                }
-            }
-        }
-    }
-
-    .theme-btn {
-        position: fixed;
-        top: 20px;
-        right: 30px;
-        z-index: 9999;
-    }
-
-    .footer {
-        align-items: center;
-        box-sizing: border-box;
-        position: absolute;
-        bottom: 10px;
-        z-index: 999;
-
-        .beian {
-            .text {
-                font-size: 12px;
-                font-weight: 400;
-                letter-spacing: 0.2px;
-                line-height: 20px;
-                text-align: center;
-            }
-
-            .below {
-                align-items: center;
-                display: flex;
-            }
-        }
+<style lang="scss" scoped>
+.login-container {
+    position: flex;
+    z-index: 1;
+    .login-box {
+        position: flex;
+        z-index: 2;
     }
 }
 </style>

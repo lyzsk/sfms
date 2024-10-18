@@ -1,49 +1,229 @@
-import { fileURLToPath, URL } from "node:url";
+import vue from "@vitejs/plugin-vue";
+import { type UserConfig, type ConfigEnv, loadEnv, defineConfig } from "vite";
 
-import { defineConfig, loadEnv } from "vite";
-import createVitePlugins from "./config/plugins";
+import AutoImport from "unplugin-auto-import/vite";
+import Components from "unplugin-vue-components/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
-// https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
-    const env = loadEnv(mode, process.cwd()) as ImportMetaEnv;
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
+import mockDevServerPlugin from "vite-plugin-mock-dev-server";
+
+import UnoCSS from "unocss/vite";
+import { resolve } from "path";
+import {
+    name,
+    version,
+    engines,
+    dependencies,
+    devDependencies,
+} from "./package.json";
+
+/**
+ * Vite 插件：Vue Devtools
+ *
+ * @see  https://devtools-next.vuejs.org
+ */
+import VueDevTools from "vite-plugin-vue-devtools";
+
+// 平台的名称、版本、运行所需的`node`版本、依赖、构建时间的类型提示
+const __APP_INFO__ = {
+    pkg: { name, version, engines, dependencies, devDependencies },
+    buildTimestamp: Date.now(),
+};
+
+const pathSrc = resolve(__dirname, "src");
+/**
+ * Vite配置 @see https://cn.vitejs.dev/config
+ */
+export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
+    const env = loadEnv(mode, process.cwd());
     return {
-        // 开发或生产环境服务的公共基础路径
-        base: env.VITE_BASE,
         resolve: {
             alias: {
-                "@": fileURLToPath(new URL("./src", import.meta.url)),
+                "@": pathSrc,
             },
         },
-        // 引入sass全局样式变量
         css: {
+            // CSS 预处理器
             preprocessorOptions: {
+                // 定义全局 SCSS 变量
                 scss: {
-                    additionalData: `@import "@/styles/var.scss";`,
-                    api: "modern",
+                    javascriptEnabled: true,
+                    api: "modern-compiler",
+                    additionalData: `
+            @use "@/styles/variables.scss" as *;
+          `,
                 },
             },
         },
         server: {
-            host: true,
-            port: 8889,
-            // 服务启动时是否自动打开浏览器
+            // 主机地址
+            host: "0.0.0.0",
+            // 端口号
+            port: +env.VITE_APP_PORT,
+            // 是否自动在浏览器中打开
             open: true,
-            // 本地跨域代理 -> 代理到服务器的接口地址
             proxy: {
-                "/api": {
-                    target: env.VITE_API_BASE_URL, // 后台服务器地址
-                    changeOrigin: true, // 是否允许不同源
-                    secure: false, // 支持https
-                    rewrite: (path) => path.replace(/^\/api/, ""),
+                // 代理前缀为 /dev-api 的请求
+                [env.VITE_APP_BASE_API]: {
+                    changeOrigin: true,
+                    // 代理目标真实接口地址
+                    target: env.VITE_APP_API_URL,
+                    rewrite: (path) =>
+                        path.replace(
+                            new RegExp("^" + env.VITE_APP_BASE_API),
+                            ""
+                        ),
                 },
             },
         },
-        plugins: createVitePlugins(env, command === "build"),
-        // 构建
+        plugins: [
+            vue(),
+            // MOCK 服务
+            env.VITE_MOCK_DEV_SERVER === "true" ? mockDevServerPlugin() : null,
+            UnoCSS({
+                hmrTopLevelAwait: false,
+            }),
+            /**
+             * 自动导入配置
+             *
+             * @see https://github.com/sxzz/element-plus-best-practices/blob/main/vite.config.ts1
+             */
+            AutoImport({
+                // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
+                imports: [
+                    "vue",
+                    "@vueuse/core",
+                    "pinia",
+                    "vue-router",
+                    "vue-i18n",
+                ],
+                resolvers: [
+                    // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
+                    ElementPlusResolver(),
+                ],
+                eslintrc: {
+                    // 是否自动生成 eslint 规则，建议生成之后设置 false
+                    enabled: false,
+                    // 指定自动导入函数 eslint 规则的文件
+                    filepath: "./.eslintrc-auto-import.json",
+                    globalsPropValue: true,
+                },
+                // 是否在 vue 模板中自动导入
+                vueTemplate: true,
+                // 指定自动导入函数TS类型声明文件路径 (false:关闭自动生成)
+                // dts: false,
+                dts: "src/types/auto-imports.d.ts",
+            }),
+            Components({
+                resolvers: [
+                    // 自动导入 Element Plus 组件
+                    ElementPlusResolver(),
+                ],
+                // 指定自定义组件位置(默认:src/components)
+                dirs: ["src/components", "src/**/components"],
+                // 指定自动导入组件TS类型声明文件路径 (false:关闭自动生成)
+                // dts: false,
+                dts: "src/types/components.d.ts",
+            }),
+            createSvgIconsPlugin({
+                // 指定需要缓存的图标文件夹
+                iconDirs: [resolve(pathSrc, "assets/icons")],
+                symbolId: "icon-[dir]-[name]",
+            }),
+            VueDevTools({
+                openInEditorHost: `http://localhost:${env.VITE_APP_PORT}`,
+            }),
+        ],
+        // 预加载项目必需的组件
+        optimizeDeps: {
+            include: [
+                "vue",
+                "vue-router",
+                "pinia",
+                "axios",
+                "@vueuse/core",
+                "sortablejs",
+                "exceljs",
+                "path-to-regexp",
+                "echarts",
+                "@wangeditor/editor",
+                "@wangeditor/editor-for-vue",
+                "vue-i18n",
+                "path-browserify",
+                "element-plus/es/components/form/style/css",
+                "element-plus/es/components/form-item/style/css",
+                "element-plus/es/components/button/style/css",
+                "element-plus/es/components/input/style/css",
+                "element-plus/es/components/input-number/style/css",
+                "element-plus/es/components/switch/style/css",
+                "element-plus/es/components/upload/style/css",
+                "element-plus/es/components/menu/style/css",
+                "element-plus/es/components/col/style/css",
+                "element-plus/es/components/icon/style/css",
+                "element-plus/es/components/row/style/css",
+                "element-plus/es/components/tag/style/css",
+                "element-plus/es/components/dialog/style/css",
+                "element-plus/es/components/loading/style/css",
+                "element-plus/es/components/radio/style/css",
+                "element-plus/es/components/radio-group/style/css",
+                "element-plus/es/components/popover/style/css",
+                "element-plus/es/components/scrollbar/style/css",
+                "element-plus/es/components/tooltip/style/css",
+                "element-plus/es/components/dropdown/style/css",
+                "element-plus/es/components/dropdown-menu/style/css",
+                "element-plus/es/components/dropdown-item/style/css",
+                "element-plus/es/components/sub-menu/style/css",
+                "element-plus/es/components/menu-item/style/css",
+                "element-plus/es/components/divider/style/css",
+                "element-plus/es/components/card/style/css",
+                "element-plus/es/components/link/style/css",
+                "element-plus/es/components/breadcrumb/style/css",
+                "element-plus/es/components/breadcrumb-item/style/css",
+                "element-plus/es/components/table/style/css",
+                "element-plus/es/components/tree-select/style/css",
+                "element-plus/es/components/table-column/style/css",
+                "element-plus/es/components/select/style/css",
+                "element-plus/es/components/option/style/css",
+                "element-plus/es/components/pagination/style/css",
+                "element-plus/es/components/tree/style/css",
+                "element-plus/es/components/alert/style/css",
+                "element-plus/es/components/radio-button/style/css",
+                "element-plus/es/components/checkbox-group/style/css",
+                "element-plus/es/components/checkbox/style/css",
+                "element-plus/es/components/tabs/style/css",
+                "element-plus/es/components/tab-pane/style/css",
+                "element-plus/es/components/rate/style/css",
+                "element-plus/es/components/date-picker/style/css",
+                "element-plus/es/components/notification/style/css",
+                "element-plus/es/components/image/style/css",
+                "element-plus/es/components/statistic/style/css",
+                "element-plus/es/components/watermark/style/css",
+                "element-plus/es/components/config-provider/style/css",
+                "element-plus/es/components/text/style/css",
+                "element-plus/es/components/drawer/style/css",
+                "element-plus/es/components/color-picker/style/css",
+                "element-plus/es/components/backtop/style/css",
+                "element-plus/es/components/message-box/style/css",
+                "element-plus/es/components/skeleton/style/css",
+                "element-plus/es/components/skeleton/style/css",
+                "element-plus/es/components/skeleton-item/style/css",
+                "element-plus/es/components/badge/style/css",
+                "element-plus/es/components/steps/style/css",
+                "element-plus/es/components/step/style/css",
+                "element-plus/es/components/avatar/style/css",
+                "element-plus/es/components/descriptions/style/css",
+                "element-plus/es/components/descriptions-item/style/css",
+                "element-plus/es/components/checkbox-group/style/css",
+                "element-plus/es/components/progress/style/css",
+                "element-plus/es/components/image-viewer/style/css",
+                "element-plus/es/components/empty/style/css",
+            ],
+        },
+        // 构建配置
         build: {
             chunkSizeWarningLimit: 2000, // 消除打包大小超过500kb警告
-            outDir: "dist", // 指定打包路径，默认为项目根目录下的dist目录
-            minify: "terser", // Vite 2.6.x 以上需要配置 minify："terser"，terserOptions才能生效
+            minify: "terser", // Vite 2.6.x 以上需要配置 minify: "terser", terserOptions 才能生效
             terserOptions: {
                 compress: {
                     keep_infinity: true, // 防止 Infinity 被压缩成 1/0，这可能会导致 Chrome 上的性能问题
@@ -54,16 +234,44 @@ export default defineConfig(({ command, mode }) => {
                     comments: false, // 删除注释
                 },
             },
-            // 静态资源打包到dist下的不同目录
             rollupOptions: {
                 output: {
-                    chunkFileNames: "static/js/[name]-[hash].js",
-                    entryFileNames: "static/js/[name]-[hash].js",
-                    assetFileNames: "static/[ext]/[name]-[hash].[ext]",
+                    // manualChunks: {
+                    //   "vue-i18n": ["vue-i18n"],
+                    // },
+                    // 用于从入口点创建的块的打包输出格式[name]表示文件名,[hash]表示该文件内容hash值
+                    entryFileNames: "js/[name].[hash].js",
+                    // 用于命名代码拆分时创建的共享块的输出命名
+                    chunkFileNames: "js/[name].[hash].js",
+                    // 用于输出静态资源的命名，[ext]表示文件扩展名
+                    assetFileNames: (assetInfo: any) => {
+                        const info = assetInfo.name.split(".");
+                        let extType = info[info.length - 1];
+                        // console.log('文件信息', assetInfo.name)
+                        if (
+                            /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(
+                                assetInfo.name
+                            )
+                        ) {
+                            extType = "media";
+                        } else if (
+                            /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(assetInfo.name)
+                        ) {
+                            extType = "img";
+                        } else if (
+                            /\.(woff2?|eot|ttf|otf)(\?.*)?$/i.test(
+                                assetInfo.name
+                            )
+                        ) {
+                            extType = "fonts";
+                        }
+                        return `${extType}/[name].[hash].[ext]`;
+                    },
                 },
             },
         },
-        // 以 envPrefix 开头的环境变量会通过 import.meta.env 暴露在你的客户端源码中。
-        envPrefix: ["VITE", "FILE"],
+        define: {
+            __APP_INFO__: JSON.stringify(__APP_INFO__),
+        },
     };
 });

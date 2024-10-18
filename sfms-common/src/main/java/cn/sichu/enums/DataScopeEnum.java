@@ -1,45 +1,28 @@
 package cn.sichu.enums;
 
-import cn.sichu.core.enums.BaseEnum;
+import cn.sichu.base.IBaseEnum;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 数据权限枚举
  *
  * @author sichu huang
- * @date 2024/10/11
- **/
+ * @since 2024/10/16 22:19
+ */
 @Getter
-@RequiredArgsConstructor
-public enum DataScopeEnum implements BaseEnum<Integer> {
-
+public enum DataScopeEnum implements IBaseEnum<Integer> {
     /**
-     * 全部数据权限
-     **/
-    ALL(1, "全部数据权限"),
-
-    /**
-     * 本部门及以下数据权限
-     **/
-    DEPT_AND_CHILD(2, "本部门及以下数据权限"),
-
-    /**
-     * 本部门数据权限
-     **/
-    DEPT(3, "本部门数据权限"),
-
-    /**
-     * 仅本人数据权限
-     **/
-    SELF(4, "仅本人数据权限"),
-
-    /**
-     * 自定义数据权限
-     **/
-    CUSTOM(5, "自定义数据权限"),
-    ;
+     * value 越小，数据权限范围越大
+     */
+    ALL(0, "所有数据"), DEPT_AND_SUB(1, "部门及子部门数据"), DEPT(2, "本部门数据"), SELF(3,
+        "本人数据");
 
     private final Integer value;
-    private final String description;
+
+    private final String label;
+
+    DataScopeEnum(Integer value, String label) {
+        this.value = value;
+        this.label = label;
+    }
 }

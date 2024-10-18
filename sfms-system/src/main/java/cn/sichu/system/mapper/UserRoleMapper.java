@@ -1,26 +1,23 @@
 package cn.sichu.system.mapper;
 
-import cn.sichu.data.mp.base.BaseMapper;
-import cn.sichu.system.model.entity.UserRoleDo;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
+import cn.sichu.system.model.entity.UserRole;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author sichu huang
- * @date 2024/10/11
- **/
-public interface UserRoleMapper extends BaseMapper<UserRoleDo> {
-    
+ * @since 2024/10/16 23:27
+ */
+@Mapper
+public interface UserRoleMapper extends BaseMapper<UserRole> {
+
     /**
-     * 根据用户ID 查询
+     * 获取角色绑定的用户数
      *
-     * @param userId 用户ID
-     * @return java.util.List<java.lang.Long> 角色ID列表
+     * @param roleId 角色ID
+     * @return int
      * @author sichu huang
-     * @date 2024/10/11
-     **/
-    @Select("SELECT role_id FROM t_sys_user_role WHERE user_id = #{userId}")
-    List<Long> selectRoleIdByUserId(@Param("userId") Long userId);
+     * @since 2024/10/16 23:27:35
+     */
+    int countUsersForRole(Long roleId);
 }

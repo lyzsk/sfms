@@ -8,31 +8,12 @@
         <version>1.0.0</version>
     </parent>
     <artifactId>sfms-common</artifactId>
+    <name>sfms-common</name>
 
     <dependencies>
         <dependency>
-            <groupId>cn.sichu</groupId>
-            <artifactId>sfms-starter</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <!-- CosId（通用、灵活、高性能的分布式 ID 生成器） -->
-        <dependency>
-            <groupId>me.ahoo.cosid</groupId>
-            <artifactId>cosid-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>me.ahoo.cosid</groupId>
-            <artifactId>cosid-spring-redis</artifactId>
-        </dependency>
-        <!-- X File Storage（一行代码将文件存储到本地、FTP、SFTP、WebDAV、阿里云 OSS、华为云 OBS...等其它兼容 S3 协议的存储平台） -->
-        <dependency>
-            <groupId>org.dromara.x-file-storage</groupId>
-            <artifactId>x-file-storage-core</artifactId>
-        </dependency>
-
     </dependencies>
 </project>
