@@ -277,7 +277,7 @@ function handleLoginSubmit() {
             userStore
                 .login(loginData.value)
                 .then(() => {
-                    const { path, queryParams } = parseRedirect();
+                    const { path, queryParams } = parseRedirect(loginData);
                     router.push({ path: path, query: queryParams });
                 })
                 .catch(() => {
@@ -290,14 +290,19 @@ function handleLoginSubmit() {
     });
 }
 
-/** 解析 redirect 字符串 为 path 和  queryParams */
-function parseRedirect(): {
+/** 解析 redirect 字符串 为 path 和 queryParams */
+function parseRedirect(loginData: LoginData): {
     path: string;
     queryParams: Record<string, string>;
 } {
+    let redirect: string;
+    if (loginData.value.username === "admin") {
+        redirect = "/";
+    } else {
+        // 非 admin 用户 跳转 /digitaltwin/virtualfab
+        redirect = "/virtualfab";
+    }
     const query: LocationQuery = route.query;
-    const redirect = (query.redirect as string) ?? "/";
-
     const url = new URL(redirect, window.location.origin);
     const path = url.pathname;
     const queryParams: Record<string, string> = {};

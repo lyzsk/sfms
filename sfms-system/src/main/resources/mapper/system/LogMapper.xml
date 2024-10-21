@@ -22,7 +22,7 @@
         sys_log t1
         LEFT JOIN sys_user t2 ON t1.create_by = t2.id
         <where>
-            <!--            t1.is_deleted = 0-->
+            t1.is_deleted = 0
             <if test="queryParams.keywords != null and queryParams.keywords != ''">
                 AND (
                 t1.content LIKE concat('%',#{queryParams.keywords},'%')
@@ -36,12 +36,12 @@
                 <if test="queryParams.createTime[0] != null and queryParams.createTime[0] != ''">
                     <bind name="startDate"
                           value="queryParams.createTime[0].length() == 10 ? queryParams.createTime[0] + ' 00:00:00' : queryParams.createTime[0]"/>
-                    AND t1.create_time &gt;= #{startDate}
+                    AND t1.create_time <![CDATA[>=]]> #{startDate}
                 </if>
                 <if test="queryParams.createTime[1] != null and queryParams.createTime[1] != ''">
                     <bind name="endDate"
                           value="queryParams.createTime[1].length() == 10 ? queryParams.createTime[1] + ' 23:59:59' : queryParams.createTime[1]"/>
-                    AND t1.create_time &lt;= #{endDate}
+                    AND t1.create_time <![CDATA[<=]]> #{endDate}
                 </if>
             </if>
         </where>
@@ -83,13 +83,13 @@
         ROUND(
         CASE
         WHEN COUNT(CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND TIME(create_time)
-        &lt;= TIME(NOW()) THEN 1 END) = 0 THEN 0
+        <![CDATA[<=]]> TIME(NOW()) THEN 1 END) = 0 THEN 0
         ELSE
         (COUNT(CASE WHEN DATE(create_time) = CURDATE() THEN 1 END) -
-        COUNT(CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND TIME(create_time) &lt;=
-        TIME(NOW()) THEN 1 END)) /
-        COUNT(CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND TIME(create_time) &lt;=
-        TIME(NOW()) THEN 1 END)
+        COUNT(CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND TIME(create_time)
+        <![CDATA[<=]]> TIME(NOW()) THEN 1 END)) /
+        COUNT(CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND TIME(create_time)
+        <![CDATA[<=]]> TIME(NOW()) THEN 1 END)
         END,
         2) AS growthRate
         FROM
@@ -106,13 +106,13 @@
         ROUND(
         CASE
         WHEN COUNT(DISTINCT CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND
-        TIME(create_time) &lt;= TIME(NOW()) THEN ip END) = 0 THEN 0
+        TIME(create_time) <![CDATA[<=]]> TIME(NOW()) THEN ip END) = 0 THEN 0
         ELSE
         (COUNT(DISTINCT CASE WHEN DATE(create_time) = CURDATE() THEN ip END) -
         COUNT(DISTINCT CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND
-        TIME(create_time) &lt;= TIME(NOW()) THEN ip END)) /
+        TIME(create_time) <![CDATA[<=]]> TIME(NOW()) THEN ip END)) /
         COUNT(DISTINCT CASE WHEN DATE(create_time) = CURDATE() - INTERVAL 1 DAY AND
-        TIME(create_time) &lt;= TIME(NOW()) THEN ip END)
+        TIME(create_time) <![CDATA[<=]]> TIME(NOW()) THEN ip END)
         END,
         2) AS growthRate
         FROM

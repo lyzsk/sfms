@@ -91,6 +91,7 @@ CREATE TABLE `sys_log` (
   `os` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '终端系统',
   `create_by` bigint DEFAULT NULL COMMENT '创建人ID',
   `create_time` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `is_deleted` tinyint NOT NULL DEFAULT '0' COMMENT '逻辑删除标识(1-已删除 0-未删除)',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='系统日志表';
 

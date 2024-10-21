@@ -42,10 +42,8 @@ public class LogController {
     @Operation(summary = "获取访问趋势")
     @GetMapping("/visit-trend")
     public Result<VisitTrendVO> getVisitTrend(
-        @Parameter(description = "开始时间", example = "yyyy-MM-dd HH:mm:ss.SSS") @RequestParam
-        String startDate,
-        @Parameter(description = "结束时间", example = "yyyy-MM-dd HH:mm:ss.SSS") @RequestParam
-        String endDate) {
+        @Parameter(description = "开始时间", example = "YYYY-MM-DD") @RequestParam String startDate,
+        @Parameter(description = "结束时间", example = "YYYY-MM-DD") @RequestParam String endDate) {
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         VisitTrendVO data = logService.getVisitTrend(start, end);

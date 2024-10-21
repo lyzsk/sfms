@@ -127,7 +127,6 @@ public class UserController {
             this.getClass().getClassLoader().getResourceAsStream(fileClassPath);
         ServletOutputStream outputStream = response.getOutputStream();
         ExcelWriter excelWriter = EasyExcel.write(outputStream).withTemplate(inputStream).build();
-
         excelWriter.finish();
     }
 
@@ -148,7 +147,6 @@ public class UserController {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition",
             "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
-
         List<UserExportDTO> exportUserList = userService.listExportUsers(queryParams);
         EasyExcel.write(response.getOutputStream(), UserExportDTO.class).sheet("用户列表")
             .doWrite(exportUserList);

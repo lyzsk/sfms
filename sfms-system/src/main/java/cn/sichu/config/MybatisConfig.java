@@ -36,7 +36,6 @@ public class MybatisConfig {
             new DataPermissionInterceptor(new MyDataPermissionHandler()));
         //分页插件
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
-
         return interceptor;
     }
 

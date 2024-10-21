@@ -32,8 +32,8 @@ public interface LogMapper extends BaseMapper<Log> {
     /**
      * 统计浏览数(PV)
      *
-     * @param startDate 开始日期 yyyy-MM-dd HH:mm:ss.SSS
-     * @param endDate   结束日期 yyyy-MM-dd HH:mm:ss.SSS
+     * @param startDate 开始日期 YYYY-MM-DD HH:mm:ss.SSS
+     * @param endDate   结束日期 YYYY-MM-DD HH:mm:ss.SSS
      * @return java.util.List<cn.sichu.model.bo.VisitCount>
      * @author sichu huang
      * @since 2024/10/16 23:21:31
@@ -43,8 +43,8 @@ public interface LogMapper extends BaseMapper<Log> {
     /**
      * 统计IP数
      *
-     * @param startDate 开始日期 yyyy-MM-dd HH:mm:ss.SSS
-     * @param endDate   结束日期 yyyy-MM-dd HH:mm:ss.SSS
+     * @param startDate 开始日期 YYYY-MM-DD HH:mm:ss.SSS
+     * @param endDate   结束日期 YYYY-MM-DD HH:mm:ss.SSS
      * @return java.util.List<cn.sichu.model.bo.VisitCount>
      * @author sichu huang
      * @since 2024/10/16 23:21:21

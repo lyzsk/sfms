@@ -28,6 +28,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log> implements LogSe
 
     @Override
     public Page<LogPageVO> getLogPage(LogPageQuery queryParams) {
+        System.err.println(queryParams);
         return this.baseMapper.getLogPage(
             new Page<>(queryParams.getPageNum(), queryParams.getPageSize()), queryParams);
     }

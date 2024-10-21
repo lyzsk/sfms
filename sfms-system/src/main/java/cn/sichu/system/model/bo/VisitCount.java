@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class VisitCount {
     /**
-     * 日期 yyyy-MM-dd HH:mm:ss.SSS
+     * 日期 YYYY-MM-DD
      */
     private String date;
 
