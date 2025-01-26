@@ -8,8 +8,6 @@ const AuthAPI = {
         const formData = new FormData();
         formData.append("username", data.username);
         formData.append("password", data.password);
-        formData.append("captchaKey", data.captchaKey);
-        formData.append("captchaCode", data.captchaCode);
         return request<any, LoginResult>({
             url: `${AUTH_BASE_URL}/login`,
             method: "post",
@@ -45,10 +43,6 @@ export interface LoginData {
     username: string;
     /** 密码 */
     password: string;
-    /** 验证码缓存key */
-    captchaKey: string;
-    /** 验证码 */
-    captchaCode: string;
 }
 
 /** 登录响应 */

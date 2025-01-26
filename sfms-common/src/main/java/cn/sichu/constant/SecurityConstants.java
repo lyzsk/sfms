@@ -7,10 +7,6 @@ package cn.sichu.constant;
  * @since 2024/10/16 22:17
  */
 public interface SecurityConstants {
-    /**
-     * 验证码缓存前缀
-     */
-    String CAPTCHA_CODE_PREFIX = "captcha_code:";
 
     /**
      * 角色和权限缓存前缀

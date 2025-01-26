@@ -96,27 +96,6 @@
                         </el-form-item>
                     </el-tooltip>
 
-                    <!-- 验证码 -->
-                    <el-form-item prop="captchaCode">
-                        <div class="input-wrapper">
-                            <svg-icon icon-class="captcha" class="mx-2" />
-                            <el-input
-                                v-model="loginData.captchaCode"
-                                auto-complete="off"
-                                size="large"
-                                class="flex-1"
-                                :placeholder="$t('login.captchaCode')"
-                                @keyup.enter="handleLoginSubmit"
-                            />
-
-                            <el-image
-                                :src="captchaBase64"
-                                class="captcha-image"
-                                @click="getCaptcha"
-                            />
-                        </div>
-                    </el-form-item>
-
                     <div class="flex-x-between w-full py-1">
                         <el-checkbox>
                             {{ $t("login.rememberMe") }}
@@ -226,8 +205,6 @@ const loginImage = ref(
 const loginData = ref<LoginData>({
     username: "admin",
     password: "",
-    captchaKey: "",
-    captchaCode: "",
 });
 
 const loginRules = computed(() => {
@@ -251,23 +228,8 @@ const loginRules = computed(() => {
                 trigger: "blur",
             },
         ],
-        captchaCode: [
-            {
-                required: true,
-                trigger: "blur",
-                message: t("login.message.captchaCode.required"),
-            },
-        ],
     };
 });
-
-/** 获取验证码 */
-function getCaptcha() {
-    AuthAPI.getCaptcha().then((data) => {
-        loginData.value.captchaKey = data.captchaKey;
-        captchaBase64.value = data.captchaBase64;
-    });
-}
 
 /** 登录表单提交 */
 function handleLoginSubmit() {
@@ -281,7 +243,7 @@ function handleLoginSubmit() {
                     router.push({ path: path, query: queryParams });
                 })
                 .catch(() => {
-                    getCaptcha();
+                    // getCaptcha();
                 })
                 .finally(() => {
                     loading.value = false;
@@ -347,7 +309,7 @@ const setLoginCredentials = (username: string, password: string) => {
 };
 
 onMounted(() => {
-    getCaptcha();
+    // getCaptcha();
 });
 </script>
 

@@ -1,6 +1,5 @@
 package cn.sichu.auth.service;
 
-import cn.sichu.system.model.dto.CaptchaResult;
 import cn.sichu.system.model.dto.LoginResult;
 
 /**
@@ -28,12 +27,4 @@ public interface AuthService {
      */
     void logout();
 
-    /**
-     * 获取验证码
-     *
-     * @return cn.sichu.model.dto.CaptchaResult 验证码
-     * @author sichu huang
-     * @since 2024/10/17 16:15:52
-     */
-    CaptchaResult getCaptcha();
 }

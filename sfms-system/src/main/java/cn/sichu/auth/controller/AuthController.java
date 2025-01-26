@@ -4,7 +4,6 @@ import cn.sichu.annotation.Log;
 import cn.sichu.auth.service.AuthService;
 import cn.sichu.enums.LogModuleEnum;
 import cn.sichu.result.Result;
-import cn.sichu.system.model.dto.CaptchaResult;
 import cn.sichu.system.model.dto.LoginResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,12 +40,5 @@ public class AuthController {
     public Result<?> logout() {
         authService.logout();
         return Result.success();
-    }
-
-    @Operation(summary = "获取验证码")
-    @GetMapping("/captcha")
-    public Result<CaptchaResult> getCaptcha() {
-        CaptchaResult captcha = authService.getCaptcha();
-        return Result.success(captcha);
     }
 }

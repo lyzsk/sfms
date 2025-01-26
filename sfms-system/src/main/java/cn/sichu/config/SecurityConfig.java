@@ -1,13 +1,11 @@
 package cn.sichu.config;
 
-import cn.hutool.captcha.generator.CodeGenerator;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.sichu.config.property.SecurityProperties;
 import cn.sichu.constant.SecurityConstants;
 import cn.sichu.system.core.filter.RateLimiterFilter;
 import cn.sichu.system.core.security.exception.MyAccessDeniedHandler;
 import cn.sichu.system.core.security.exception.MyAuthenticationEntryPoint;
-import cn.sichu.system.core.security.filter.CaptchaValidationFilter;
 import cn.sichu.system.core.security.filter.JwtValidationFilter;
 import cn.sichu.system.service.ConfigService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +41,6 @@ public class SecurityConfig {
     private final MyAuthenticationEntryPoint authenticationEntryPoint;
     private final MyAccessDeniedHandler accessDeniedHandler;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final CodeGenerator codeGenerator;
     private final SecurityProperties securityProperties;
     private final ConfigService configService;
 
@@ -62,9 +59,6 @@ public class SecurityConfig {
         ;
         // 限流过滤器
         http.addFilterBefore(new RateLimiterFilter(redisTemplate, configService),
-            UsernamePasswordAuthenticationFilter.class);
-        // 验证码校验过滤器
-        http.addFilterBefore(new CaptchaValidationFilter(redisTemplate, codeGenerator),
             UsernamePasswordAuthenticationFilter.class);
         // JWT 校验过滤器
         http.addFilterBefore(
